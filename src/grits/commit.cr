@@ -9,6 +9,10 @@ module Grits
 
     def initialize(@raw : LibGit::Commit); end
 
+    def message
+      String.new LibGit.commit_message(@raw)
+    end
+
     def free
       LibGit.commit_free(@raw)
     end

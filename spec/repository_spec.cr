@@ -12,6 +12,7 @@ describe Grits::Repo do
         File.open("#{path}/hello.txt", "w") { |f| f << "Hello World" }
         repo.add "hello.txt"
         commit = repo.commit "Hello World"
+        commit.message.should eq("Hello World")
       end
     end
   end
