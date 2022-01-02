@@ -5,6 +5,8 @@ module Grits
       raise Git.new(status, errstr)
     end
 
+    class Generic < Exception; end
+
     class Git < Exception
       def initialize(code : Int, message)
         @code = LibGit::ErrorCode.from_value(code)

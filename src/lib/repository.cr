@@ -24,10 +24,10 @@ lib LibGit
 
   # fun repository_init_ext = git_repository_init_ext(out : Repository*, repo_path : LibC::Char*, opts : RepositoryInitOptions*) : LibC::Int
   fun repository_head = git_repository_head(out : Reference*, repo : Repository) : LibC::Int
-  # fun repository_head_detached = git_repository_head_detached(repo : Repository) : LibC::Int
-  # fun repository_head_unborn = git_repository_head_unborn(repo : Repository) : LibC::Int
+  fun repository_head_detached = git_repository_head_detached(repo : Repository) : LibC::Int
+  fun repository_head_unborn = git_repository_head_unborn(repo : Repository) : LibC::Int
   fun repository_is_empty = git_repository_is_empty(repo : Repository) : LibC::Int
-  # fun repository_path = git_repository_path(repo : Repository) : LibC::Char*
+  fun repository_path = git_repository_path(repo : Repository) : LibC::Char*
   fun repository_workdir = git_repository_workdir(repo : Repository) : LibC::Char*
   # fun repository_set_workdir = git_repository_set_workdir(repo : Repository, workdir : LibC::Char*, update_gitlink : LibC::Int) : LibC::Int
   fun repository_is_bare = git_repository_is_bare(repo : Repository) : LibC::Int
@@ -45,7 +45,7 @@ lib LibGit
   # fun repository_set_head = git_repository_set_head(repo : Repository, refname : LibC::Char*) : LibC::Int
   # fun repository_set_head_detached = git_repository_set_head_detached(repo : Repository, commitish : Oid*) : LibC::Int
   # fun repository_set_head_detached_from_annotated = git_repository_set_head_detached_from_annotated(repo : Repository, commitish : X_AnnotatedCommit) : LibC::Int
-  # fun repository_detach_head = git_repository_detach_head(repo : Repository) : LibC::Int
+  fun repository_detach_head = git_repository_detach_head(repo : Repository) : LibC::Int
   # fun repository_state = git_repository_state(repo : Repository) : LibC::Int
   # fun repository_set_namespace = git_repository_set_namespace(repo : Repository, nmspace : LibC::Char*) : LibC::Int
   # fun repository_get_namespace = git_repository_get_namespace(repo : Repository) : LibC::Char*
