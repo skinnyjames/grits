@@ -3,6 +3,7 @@ require "file_utils"
 module Grits
   class Repo
     include Mixins::Pointable
+    include Mixins::Repo
 
     def self.open(path : String)
       Error.giterr LibGit.repository_open(out repo, path), "Couldn't open repository at #{path}"
@@ -17,7 +18,8 @@ module Grits
     end
 
     def self.init(
-      path : String, *,
+      path : String,
+      *,
       bare : Bool? = false,
       make : Bool? = false,
       mode : Int? = 511,
@@ -35,55 +37,25 @@ module Grits
       repo.free if repo
     end
 
-    getter index : Grits::Index
-    @active_commits : Array(Commit) = [] of Commit
-
     def initialize(@raw : LibGit::Repository, @path : String)
-      @index = get_index
-    end
-
-    def add(path : String) : Void
-      index.add(path)
-      index.write
-    end
-
-    # default signature, ref, etc
-    def commit(message)
-      builder = CommitBuilder.build(self, message: message) do |builder|
-        builder.sign_with_defaults!
-      end
-      builder.commit!
-    end
-
-    def build_commit(&block)
-      CommitBuilder.build(self, &block)
-    end
-
-    def bare?
-      LibGit.repository_is_bare(@raw) == 1
-    end
-
-    def empty?
-      LibGit.repository_is_empty(@raw) == 1
-    end
-
-    def workdir
-      String.new LibGit.repository_workdir(@raw)
     end
 
     def free
-      @active_commits.each &.free
-      index.free
       LibGit.repository_free(@raw)
     end
 
     def index
-      @index
+      Error.giterr LibGit.repository_index(out index, @raw), "Index did not load for repository"
+      Index.new(index, self)
     end
 
-    private def get_index
-      Error.giterr LibGit.repository_index(out index, @raw), "Index did not load for repository"
-      Index.new(index)
+    def index(&block)
+      i = index
+      begin
+        yield i
+      ensure
+        i.free
+      end
     end
   end
 end

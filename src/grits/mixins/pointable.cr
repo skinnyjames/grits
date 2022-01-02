@@ -1,6 +1,10 @@
 module Grits
   module Mixins
     module Pointable
+      def value
+        @raw
+      end
+
       def raw
         @raw
       end
