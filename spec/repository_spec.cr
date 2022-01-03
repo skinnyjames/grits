@@ -48,7 +48,15 @@ describe Grits::Repo do
       options.checkout_options.on_progress do |path, completed, total|
          progresses << ((completed / total) * 100).round(2)
       end
-      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git", "graphlyte2", options) do |repo|
+
+      options.checkout_options.file_mode = 0o700
+      options.checkout_options.dir_mode = 0o700
+
+      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git", "graphlyte2", options) do |_, path|
+        Dir.glob("#{path}/**/*") do |file|
+          File.info(file).permissions.to_s.should contain("0o700")
+        end
+        progresses.should_not be_empty
         progresses.reduce(-1) do |memo, progress|
           progress.should be > memo
           progress
