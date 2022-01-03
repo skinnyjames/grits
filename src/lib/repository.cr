@@ -8,18 +8,8 @@ lib LibGit
   fun repository_open_bare = git_repository_open_bare(out : Repository*, bare_path : LibC::Char*) : LibC::Int
   fun repository_free = git_repository_free(repo : Repository)
   fun repository_init = git_repository_init(out : Repository*, path : LibC::Char*, is_bare : LibC::UInt) : LibC::Int
-
-  struct RepositoryInitOptions
-    version : LibC::UInt
-    flags : Uint32T
-    mode : Uint32T
-    workdir_path : LibC::Char*
-    description : LibC::Char*
-    template_path : LibC::Char*
-    initial_head : LibC::Char*
-    origin_url : LibC::Char*
-  end
-
+  fun repository_clone = git_repository_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, clone_options : CloneOptions)
+  fun clone_options_init = git_clone_options_init(options : CloneOptions*, version : LibC::Int)
   fun repository_init_init_options = git_repository_init_init_options(opts : RepositoryInitOptions*, version : LibC::UInt) : LibC::Int
 
   # fun repository_init_ext = git_repository_init_ext(out : Repository*, repo_path : LibC::Char*, opts : RepositoryInitOptions*) : LibC::Int

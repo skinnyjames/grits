@@ -17,6 +17,13 @@ module Grits
       repo.free if repo
     end
 
+    def self.clone(
+      url : String,
+      local_path : String = "."
+
+    )
+    end
+
     def self.init(
       path : String,
       *,
