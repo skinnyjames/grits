@@ -23,6 +23,17 @@ class Fixture
     Time.parse(time.to_s("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S", Time::Location::UTC)
   end
 
+  def self.clone_repo(url, dir, &block)
+    path = "#{__DIR__}/tmp/#{dir}"
+    begin
+      Grits::Repo.clone(url, path) do |repo|
+        yield repo, path
+      end
+    ensure
+      FileUtils.rm_rf(path)
+    end
+  end
+
   def self.init_repo(**args, &block)
     path = "#{__DIR__}/tmp/#{Random::Secure.hex(5)}"
     begin

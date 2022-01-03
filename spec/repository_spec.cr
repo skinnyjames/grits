@@ -34,4 +34,12 @@ describe Grits::Repo do
       end
     end
   end
+
+  describe "#clone" do
+    it "clones a repo with default settings" do
+      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git", "graphlyte") do |repo|
+        repo.empty?.should eq(false)
+      end
+    end
+  end
 end
