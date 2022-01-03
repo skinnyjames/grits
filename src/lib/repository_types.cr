@@ -59,7 +59,7 @@ lib LibGit
   alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, RemoteCbPayload -> LibC::Int)
   alias RemoteReadyCb = (Remote, LibC::Int, GenericPayload -> LibC::Int)
   alias CheckoutNotifyCb = (CheckoutNotify, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, NotifyCbPayload -> LibC::Int)
-  alias CheckoutProgressCb = (LibC::Char*, LibC::SizeT, LibC::SizeT, ProgressCbPayload -> Void)
+  alias CheckoutProgressCb = (LibC::Char*, LibC::SizeT, LibC::SizeT, Void* -> Void)
   alias CheckoutPerfdataCb = (CheckoutPerfdata*, PerfdataCbPayload -> Void)
   alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, GenericPayload -> LibC::Int)
   alias TransportCb = (Transport*, Remote, Void* -> LibC::Int)
@@ -166,7 +166,7 @@ lib LibGit
     notify_cb : CheckoutNotifyCb
     notify_payload : NotifyPayload
     progress_cb : CheckoutProgressCb
-    progress_payload : ProgressCbPayload
+    progress_payload : Void*
     paths : Strarray
     baseline : Tree
     baseline_index : Index

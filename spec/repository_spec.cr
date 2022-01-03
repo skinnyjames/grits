@@ -41,5 +41,15 @@ describe Grits::Repo do
         repo.empty?.should eq(false)
       end
     end
+
+    it "can track progress of the clone" do
+      options = Grits::Cloning::CloneOptions.default
+      options.checkout_options.on_progress do |path, completed, total|
+        puts "Progress for #{path}: #{((completed / total) * 100).round(0)}"
+      end
+      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git", "graphlyte2", options) do |repo|
+        repo.empty?.should eq(false)
+      end
+    end
   end
 end

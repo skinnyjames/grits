@@ -1,6 +1,7 @@
 require "spec"
 require "../src/grits"
 require "random/secure"
+require "log"
 
 Spec.after_suite do
   Fixture.clean_all
@@ -23,10 +24,10 @@ class Fixture
     Time.parse(time.to_s("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S", Time::Location::UTC)
   end
 
-  def self.clone_repo(url, dir, &block)
+  def self.clone_repo(url, dir, *args, &block)
     path = "#{__DIR__}/tmp/#{dir}"
     begin
-      Grits::Repo.clone(url, path) do |repo|
+      Grits::Repo.clone(url, path, *args) do |repo|
         yield repo, path
       end
     ensure
