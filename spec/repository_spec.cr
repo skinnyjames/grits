@@ -43,12 +43,16 @@ describe Grits::Repo do
     end
 
     it "can track progress of the clone" do
+      progresses = [] of Float64
       options = Grits::Cloning::CloneOptions.default
       options.checkout_options.on_progress do |path, completed, total|
-        puts "Progress for #{path}: #{((completed / total) * 100).round(0)}"
+         progresses << ((completed / total) * 100).round(2)
       end
       Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git", "graphlyte2", options) do |repo|
-        repo.empty?.should eq(false)
+        progresses.reduce(-1) do |memo, progress|
+          progress.should be > memo
+          progress
+        end
       end
     end
   end
