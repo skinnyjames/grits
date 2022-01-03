@@ -4,12 +4,12 @@ module Grits
 
     def initialize(@raw : LibGit::Index, @repo : Grits::Repo); end
 
-    def add!(path : String) : Void
-      add(path)
+    def add(path : String) : Void
+      add_file(path)
       write
     end
 
-    def add(path : String) : Void
+    def add_file(path : String) : Void
       Error.giterr LibGit.index_add_bypath(@raw, path), "Cannot add file #{path}"
     end
 

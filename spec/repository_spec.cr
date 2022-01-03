@@ -6,8 +6,6 @@ describe Grits::Repo do
       Fixture.init_repo(make: true) do |repo, path|
         repo.empty?.should eq(true)
         repo.head_unborn?.should eq(true)
-        # repo.head_detached?.should eq(false)
-
         repo.path.should eq("#{path}/.git/")
         repo.workdir.should eq("#{path}/")
       end
@@ -17,7 +15,6 @@ describe Grits::Repo do
       Fixture.init_repo(make: true, bare: true) do |repo, path|
         repo.empty?.should eq(true)
         repo.head_unborn?.should eq(true)
-        # repo.head_detached?.should eq(false)
         repo.path.should eq("#{path}/")
         expect_raises(Grits::Error::Generic, /is the repository bare?/) do
           repo.workdir

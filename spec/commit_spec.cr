@@ -11,7 +11,7 @@ describe Grits::Commit do
           tree = index.default_tree
 
           Fixture.write_file("#{path}/something.text", "Hello World")
-          index.add! "something.text"
+          index.add "something.text"
 
           Grits::Commit.create(repo,
             author: author,
