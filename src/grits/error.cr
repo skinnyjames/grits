@@ -10,7 +10,8 @@ module Grits
     class Git < Exception
       def initialize(code : Int, message)
         @code = LibGit::ErrorCode.from_value(code)
-        @message = "#{@code}: #{message}"
+        lib_git_error = LibGit.error_last.value
+        @message = "#{@code}: #{message}\n  #{String.new(lib_git_error.message)}"
       end
     end
   end

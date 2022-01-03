@@ -1,5 +1,7 @@
 @[Link("git2")]
 lib LibGit
+  GIT_CLONE_OPTIONS_VERSION = 1
+
   type RepositoryCbPayload = Void*
   type RemoteCbPayload = Void*
   type NotifyCbPayload = Void*

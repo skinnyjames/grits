@@ -19,9 +19,18 @@ module Grits
 
     def self.clone(
       url : String,
-      local_path : String = "."
-
+      local_path : String = Dir.cwd
     )
+      Error.giterr LibGit.clone_options_init(out options, LibGit::GIT_CLONE_OPTIONS_VERSION), "Can't create clone options"
+      Error.giterr LibGit.clone(out repo, url, local_path, pointerof(options)), "Can't clone repo"
+      new(repo, local_path)
+    end
+
+    def self.clone(*args, &block)
+      repo = clone(*args)
+      yield repo
+    ensure
+      repo.free if repo
     end
 
     def self.init(
