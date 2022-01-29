@@ -24,7 +24,7 @@ module Grits
       end
 
       def get(name : String)
-        Box(CredentialsAcquireCb).unbox(@state[name])
+        @state[name]
       end
     end
 
