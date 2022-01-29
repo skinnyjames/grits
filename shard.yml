@@ -7,3 +7,7 @@ authors:
 crystal: 1.1.1
 
 license: MIT
+
+targets: 
+  spec: 
+    main: spec/repository_spec.cr 

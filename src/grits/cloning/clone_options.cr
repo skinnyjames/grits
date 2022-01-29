@@ -3,6 +3,73 @@ module Grits
 
     alias CheckoutProgressCb = (String, UInt64, UInt64 -> Void)
 
+    alias CredentialsAcquireCb = (Pointer(LibGit::Credential), String, String? -> Int32)
+    alias FetchRemoteCbs = CredentialsAcquireCb
+
+    class Cbs
+      @@box : Pointer(Void)?
+
+      def initialize(@state = {} of String => Pointer(Void)); end
+
+      def any?
+        @state.keys.size > 0
+      end
+
+      def keys
+        @state.keys
+      end
+
+      def add(name : String, cb : CredentialsAcquireCb)
+        @state[name] = cb
+      end
+
+      def get(name : String)
+        Box(CredentialsAcquireCb).unbox(@state[name])
+      end
+    end
+
+    class FetchOptions
+
+      def self.init
+        options = LibGit::FetchOptions.new
+        Error.giterr LibGit.fetch_options_init(pointerof(options), LibGit::GIT_CLONE_OPTIONS_VERSION), "Couldn't init fetch options"
+        new(options)
+      end
+
+      delegate(
+        :version,
+        :version=,
+        :update_fetchhead,
+        :update_fetchhead=,
+        to: @raw
+      )
+
+      @box : Pointer(Void)?
+
+      def initialize(@raw : LibGit::FetchOptions)
+      end
+
+      def on_credentials_acquire(&block : CredentialsAcquireCb)
+        callbacks = @raw.callbacks
+        @box = Box.box("hello")
+        # this breaks
+        @box.try { |box| callbacks.payload = box }
+        callbacks.credentials = ->(credential : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt, payload : Void*) do
+          #callback = Box(FetchRemoteCbs).unbox(payload)
+          resource = String.new(url)
+          username = username_from_url.null? ? nil : String.new(username_from_url)
+          puts username, resource, credential.value
+          #callback.call(credential, resource, username)
+          credential.value
+        end
+        @raw.callbacks = callbacks
+      end
+
+      def raw
+        @raw
+      end
+    end
+
     class CheckoutOptions
       delegate(
         :version,
@@ -54,16 +121,21 @@ module Grits
       )
 
       def initialize(@raw : LibGit::CloneOptions)
-        checkout_opts = raw.checkout_opts
-        @checkout_options = CheckoutOptions.new(checkout_opts)
+        @checkout_options = CheckoutOptions.new(@raw.checkout_opts)
+        @fetch_options = FetchOptions.new(@raw.fetch_opts)
       end
 
       def checkout_options
         @checkout_options
       end
 
+      def fetch_options
+        @fetch_options
+      end
+
       def raw
         @raw.checkout_opts = checkout_options.raw
+        @raw.fetch_opts = fetch_options.raw
         @raw
       end
     end

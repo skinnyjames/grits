@@ -2,14 +2,7 @@
 lib LibGit
   GIT_CLONE_OPTIONS_VERSION = 1
 
-  type RepositoryCbPayload = Void*
-  type RemoteCbPayload = Void*
-  type NotifyCbPayload = Void*
-  type ProgressCbPayload = Void*
-  type PerfdataCbPayload = Void*
-  type NotifyPayload = Void*
   type Credential = Void*
-  type GenericPayload = Void*
   type Certificate = Void*
   type Transport = Void*
 
@@ -36,7 +29,7 @@ lib LibGit
     Error
   end
 
-  enum FetchPrune
+  enum FetchPruneT
     Unspecified
     Prune
     NoPrune
@@ -55,21 +48,21 @@ lib LibGit
     Specified
   end
 
-  alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, RepositoryCbPayload -> LibC::Int)
-  alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, RemoteCbPayload -> LibC::Int)
-  alias RemoteReadyCb = (Remote, LibC::Int, GenericPayload -> LibC::Int)
-  alias CheckoutNotifyCb = (CheckoutNotify, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, NotifyCbPayload -> LibC::Int)
+  alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
+  alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, Void* -> LibC::Int)
+  alias RemoteReadyCb = (Remote, LibC::Int, Void* -> LibC::Int)
+  alias CheckoutNotifyCb = (CheckoutNotify, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)
   alias CheckoutProgressCb = (LibC::Char*, LibC::SizeT, LibC::SizeT, Void* -> Void)
-  alias CheckoutPerfdataCb = (CheckoutPerfdata*, PerfdataCbPayload -> Void)
-  alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, GenericPayload -> LibC::Int)
+  alias CheckoutPerfdataCb = (CheckoutPerfdata*, Void* -> Void)
+  alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> Credential)
   alias TransportCb = (Transport*, Remote, Void* -> LibC::Int)
-  alias TransportMessageCb = (LibC::Char*, LibC::Int, GenericPayload -> LibC::Int)
-  alias TransportCertificateCheckCb = (Certificate, LibC::Int, LibC::Char*, GenericPayload -> LibC::Int)
-  alias IndexerProgressCb = (IndexerProgress*, GenericPayload -> LibC::Int)
-  alias PushTransferProgressCb = (LibC::UInt, LibC::UInt, LibC::SizeT, GenericPayload -> LibC::Int)
-  alias PushUpdateReferenceCb = (LibC::Char*, LibC::Char*, GenericPayload -> LibC::Int)
-  alias PushNegotiationCb = (PushUpdate**, LibC::SizeT, GenericPayload -> LibC::Int)
-  alias UrlResolveCb = (Buf*, LibC::Char*, LibC::Int, GenericPayload -> LibC::Int)
+  alias TransportMessageCb = (LibC::Char*, LibC::Int, Void* -> LibC::Int)
+  alias TransportCertificateCheckCb = (Certificate, LibC::Int, LibC::Char*, Void* -> LibC::Int)
+  alias IndexerProgressCb = (IndexerProgress*, Void* -> LibC::Int)
+  alias PushTransferProgressCb = (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int)
+  alias PushUpdateReferenceCb = (LibC::Char*, LibC::Char*, Void* -> LibC::Int)
+  alias PushNegotiationCb = (PushUpdate**, LibC::SizeT, Void* -> LibC::Int)
+  alias UrlResolveCb = (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
 
   struct RepositoryInitOptions
     version : LibC::UInt
@@ -85,18 +78,18 @@ lib LibGit
   struct RemoteCallbacks
     version : LibC::UInt
     sideband_progress : TransportMessageCb # todo
-    #completion :  Int* -> (RemoteCompletion) -> Void* #wrong
+    completion :  (RemoteCompletion, Void* -> Void) #wrong
     credentials : CredentialsAcquireCb
     certificate_check : TransportCertificateCheckCb
     transfer_progress : IndexerProgressCb
-    #update_tips : LibC::Char* # wrong
-    pack_progress : (LibC::Int, Uint32T, Uint32T, GenericPayload -> LibC::Int)
+    update_tips : (LibC::Char*, Oid, Oid, Void* -> Void) # wrong
+    pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int)
     push_transfer_progress : PushTransferProgressCb
     push_update_reference : PushUpdateReferenceCb
     push_negotiation : PushNegotiationCb
     transport : TransportCb
     remote_ready : RemoteReadyCb
-    payload : GenericPayload
+    payload : Void*
     resolve_url : UrlResolveCb
   end
 
@@ -124,9 +117,9 @@ lib LibGit
     local : CloneLocal
     checkout_branch : LibC::Char*
     repository_cb : RepositoryCb
-    repository_cb_payload : RepositoryCbPayload
-    remote_cb : RemoteCb
-    remote_cb_payload : RemoteCbPayload
+    repository_cb_payload : Void*
+    remote_cb : RemoteCb?
+    remote_cb_payload : Void*
   end
 
   struct IndexerProgress
@@ -148,7 +141,7 @@ lib LibGit
   struct FetchOptions
     version : LibC::Int
     callbacks : RemoteCallbacks
-    prune : FetchPrune
+    prune : FetchPruneT
     update_fetchhead : LibC::Int
     download_tags : RemoteAutotagOption
     proxy_options : ProxyOptions
@@ -164,7 +157,7 @@ lib LibGit
     file_open_flags : LibC::Int
     notify_flags : LibC::UInt
     notify_cb : CheckoutNotifyCb
-    notify_payload : NotifyPayload
+    notify_payload : Void*
     progress_cb : CheckoutProgressCb
     progress_payload : Void*
     paths : Strarray
@@ -175,6 +168,8 @@ lib LibGit
     our_label : LibC::Char*
     their_label : LibC::Char*
     perfdata_cb : CheckoutPerfdataCb
-    perfdata_payload : PerfdataCbPayload
+    perfdata_payload : Void*
   end
+
+  fun fetch_options_init = git_fetch_options_init(options : FetchOptions*, vefsion : LibC::UInt) : LibC::Int
 end
