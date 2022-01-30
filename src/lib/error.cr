@@ -27,6 +27,10 @@ lib LibGit
     MergeConflict  = -24
     Passthrough    = -30
     Iterover       = -31
+    Retry          = -32
+    Mismatch       = -33
+    EIndexDirty    = -34
+    EApplyFail     = -35
   end
 
   struct Error
