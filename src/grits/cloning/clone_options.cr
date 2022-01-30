@@ -3,7 +3,7 @@ module Grits
 
     alias CheckoutProgressCb = (String, UInt64, UInt64 -> Void)
 
-    alias CredentialsAcquireCb = (Pointer(LibGit::Credential), String, String? -> Int32)
+    alias CredentialsAcquireCb = (LibGit::Credential, String, String? -> Int32)
     alias FetchRemoteCbs = CredentialsAcquireCb
 
     class Cbs
@@ -29,40 +29,23 @@ module Grits
     end
 
     class FetchOptions
-
-      def self.init
-        options = LibGit::FetchOptions.new
-        Error.giterr LibGit.fetch_options_init(pointerof(options), LibGit::GIT_CLONE_OPTIONS_VERSION), "Couldn't init fetch options"
-        new(options)
-      end
-
-      delegate(
-        :version,
-        :version=,
-        :update_fetchhead,
-        :update_fetchhead=,
-        to: @raw
-      )
-
-      @box : Pointer(Void)?
-
-      def initialize(@raw : LibGit::FetchOptions)
+      def initialize
       end
 
       def on_credentials_acquire(&block : CredentialsAcquireCb)
-        callbacks = @raw.callbacks
-        @box = Box.box("hello")
-        # this breaks
-        @box.try { |box| callbacks.payload = box }
-        callbacks.credentials = ->(credential : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt, payload : Void*) do
-          #callback = Box(FetchRemoteCbs).unbox(payload)
-          resource = String.new(url)
-          username = username_from_url.null? ? nil : String.new(username_from_url)
-          puts username, resource, credential.value
-          #callback.call(credential, resource, username)
-          credential.value
-        end
-        @raw.callbacks = callbacks
+        @on_credentials_acquire = block
+
+
+        # #@raw.callbacks.payload = Box.box("hello")
+        # @raw.callbacks.credentials = ->(credential : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  hello : Pointer(Void)) do
+        #   #callback = Box(FetchRemoteCbs).unbox(payload)
+        #   resource = String.new(url)
+        #   username = username_from_url.null? ? nil : String.new(username_from_url)
+        #   puts username, resource, credential.value
+        #   puts allowed_types
+        #   #callback.call(credential, resource, username)
+        #   credential.value
+        # end
       end
 
       def raw
@@ -94,6 +77,7 @@ module Grits
       end
 
       def on_progress(&block : CheckoutProgressCb)
+        puts "progress #{@raw.progress_payload}"
         @raw.progress_payload = Box.box(block)
         @raw.progress_cb = ->(path : LibC::Char*, completed_steps : LibC::SizeT, total_steps : LibC::SizeT, payload : Void*) do
           string_path = path.null? ? "(null)" : String.new(path)
@@ -122,7 +106,8 @@ module Grits
 
       def initialize(@raw : LibGit::CloneOptions)
         @checkout_options = CheckoutOptions.new(@raw.checkout_opts)
-        @fetch_options = FetchOptions.new(@raw.fetch_opts)
+        @fetch_options = FetchOptions.new
+        @toggle = false
       end
 
       def checkout_options
@@ -133,10 +118,65 @@ module Grits
         @fetch_options
       end
 
+      def toggle
+        @toggle = true
+        @box = Box.box(@fetch_options)
+        puts @raw.fetch_opts.callbacks.payload
+        @box.try { |b| @raw.fetch_opts.callbacks.payload = b }
+        @raw.fetch_opts.callbacks.credentials = ->(credential : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  hello : Void*) do
+          #callback = Box(FetchRemoteCbs).unbox(payload)
+          resource = String.new(url)
+          username = username_from_url.null? ? nil : String.new(username_from_url)
+          puts username, resource, credential.value
+          puts allowed_types
+          #callback.call(credential, resource, username)
+          credential.value
+        end
+        #@raw.checkout_opts = checkout_options.raw
+        @raw.remote_cb_payload = Box.box("hello")
+      end
+
+      def init_clone_opts
+        Error.giterr LibGit.clone_options_init(out options, LibGit::GIT_CLONE_OPTIONS_VERSION), "Can't create clone options"
+        options
+      end
+
+      def init_proxy_opts
+        Error.giterr LibGit.proxy_options_init(out options, 1), "Stuff"
+        options
+      end
+
+      def init_callbacks
+        Error.giterr LibGit.remote_init_callbacks(out opts, LibGit::REMOTE_CALLBACKS_VERSION), "bad"
+        opts
+      end
+
+      def init_fetch_opts
+        Error.giterr LibGit.fetch_options_init(out options, 1), "Stuff"
+        options
+      end
+
       def raw
-        @raw.checkout_opts = checkout_options.raw
-        @raw.fetch_opts = fetch_options.raw
-        @raw
+        clone_opts = init_clone_opts
+        callbacks = init_callbacks
+
+        callbacks.payload = Box(String).box("y") # this line crashes
+        callbacks.credentials = ->(credential : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  payload : Void*) do
+          puts url, Box(String).unbox(payload)
+          credential
+          1
+        end
+
+        callbacks.remote_ready = ->(remote : LibGit::Remote, int : LibC::Int, payload : Void*) do
+          puts "remote", Box(String).unbox(payload)
+          1
+        end
+        clone_opts.checkout_opts.progress_payload = Box.box("hello")
+        clone_opts.checkout_opts.progress_cb = ->(path : LibC::Char*, completed_steps : LibC::SizeT, total_steps : LibC::SizeT, payload : Void*) do
+          puts Box(String).unbox(payload)
+        end
+        clone_opts.fetch_opts.callbacks = callbacks
+        clone_opts
       end
     end
   end

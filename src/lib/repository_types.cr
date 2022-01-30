@@ -1,6 +1,7 @@
 @[Link("git2")]
 lib LibGit
   GIT_CLONE_OPTIONS_VERSION = 1
+  REMOTE_CALLBACKS_VERSION = 1
 
   type Credential = Void*
   type Certificate = Void*
@@ -54,7 +55,7 @@ lib LibGit
   alias CheckoutNotifyCb = (CheckoutNotify, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)
   alias CheckoutProgressCb = (LibC::Char*, LibC::SizeT, LibC::SizeT, Void* -> Void)
   alias CheckoutPerfdataCb = (CheckoutPerfdata*, Void* -> Void)
-  alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> Credential)
+  alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)
   alias TransportCb = (Transport*, Remote, Void* -> LibC::Int)
   alias TransportMessageCb = (LibC::Char*, LibC::Int, Void* -> LibC::Int)
   alias TransportCertificateCheckCb = (Certificate, LibC::Int, LibC::Char*, Void* -> LibC::Int)
