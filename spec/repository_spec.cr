@@ -52,7 +52,9 @@ describe Grits::Repo do
         )
       end
 
-      Fixture.clone_repo("git@github.com:skinnyjames/webdriver.git", Random::Secure.hex(3), options) {}
+      Fixture.clone_repo("git@github.com:skinnyjames/webdriver.git", Random::Secure.hex(3), options) do |repo|
+        repo.empty?.should eq(false)
+      end
     end
 
     it "can track progress of the clone" do
