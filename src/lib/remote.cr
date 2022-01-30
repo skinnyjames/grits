@@ -33,5 +33,5 @@ lib LibGit
   fun remote_free = git_remote_free(remote : Remote)
   fun remote_list = git_remote_list(out : Strarray*, repo : Repository) : LibC::Int
   fun remote_fetch = git_remote_fetch(out : Remote*, refspecs : Strarray*, opts : FetchOptions*, reflog_message : LibC::Char*) : LibC::Int
-  fun remote_init_callbacks = git_remote_init_callbacks(out : RemoteCallbacks*, version : LibC::UInt) : LibC::Int
+  fun remote_init_callbacks = git_remote_init_callbacks(opts : RemoteCallbacks*, version : LibC::UInt) : LibC::Int
 end

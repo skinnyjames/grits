@@ -3,9 +3,32 @@ lib LibGit
   GIT_CLONE_OPTIONS_VERSION = 1
   REMOTE_CALLBACKS_VERSION = 1
 
+  alias GenericPayload = Void*
+
   type Credential = Void*
   type Certificate = Void*
   type Transport = Void*
+
+  struct GitCert
+    cert_type : GitCertT
+  end
+
+  struct IndexerProgress
+    total_objects : LibC::UInt
+    indexed_objects : LibC::UInt
+    recieved_objects : LibC::UInt
+    local_objects : LibC::UInt
+    total_deltas : LibC::UInt
+    indexed_deltas : LibC::UInt
+    recieved_bytes : LibC::SizeT
+  end
+
+  enum GitCertT
+    NONE
+    X509
+    HOSTKEY_LIBSSH2
+    STRARRAY
+  end
 
   enum CloneLocal
     Auto
@@ -24,7 +47,7 @@ lib LibGit
     All
   end
 
-  enum RemoteCompletion
+  enum RemoteCompletionT
     Download
     Indexing
     Error
@@ -58,7 +81,7 @@ lib LibGit
   alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)
   alias TransportCb = (Transport*, Remote, Void* -> LibC::Int)
   alias TransportMessageCb = (LibC::Char*, LibC::Int, Void* -> LibC::Int)
-  alias TransportCertificateCheckCb = (Certificate, LibC::Int, LibC::Char*, Void* -> LibC::Int)
+  alias TransportCertificateCheckCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)
   alias IndexerProgressCb = (IndexerProgress*, Void* -> LibC::Int)
   alias PushTransferProgressCb = (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int)
   alias PushUpdateReferenceCb = (LibC::Char*, LibC::Char*, Void* -> LibC::Int)
@@ -78,20 +101,19 @@ lib LibGit
 
   struct RemoteCallbacks
     version : LibC::UInt
-    sideband_progress : TransportMessageCb # todo
-    completion :  (RemoteCompletion, Void* -> Void) #wrong
-    credentials : CredentialsAcquireCb
-    certificate_check : TransportCertificateCheckCb
-    transfer_progress : IndexerProgressCb
-    update_tips : (LibC::Char*, Oid, Oid, Void* -> Void) # wrong
-    pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int)
-    push_transfer_progress : PushTransferProgressCb
-    push_update_reference : PushUpdateReferenceCb
-    push_negotiation : PushNegotiationCb
-    transport : TransportCb
-    remote_ready : RemoteReadyCb
+    sideband_progress : (LibC::Char*, LibC::Int, Void* -> LibC::Int) # todo
+    completion :  (RemoteCompletionT, Void* -> LibC::Int) #done
+    credentials : (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int) #done
+    certificate_check : (GitCert*, LibC::Int, LibC::Char*, Void* -> LibC::Int) #done
+    transfer_progress : (IndexerProgress*, Void* -> LibC::Int) #done
+    update_tips : (LibC::Char*, Oid*, Oid*,  Void* -> LibC::Int) # done
+    pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int) #done
+    push_transfer_progress :  (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int) #done
+    push_update_reference : (LibC::Char*, LibC::Char*, Void* -> LibC::Int) #done
+    push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done
+    transport : (Transport*, Remote, Void* -> LibC::Int) #revisit but done
     payload : Void*
-    resolve_url : UrlResolveCb
+    resolve_url : (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int) #done
   end
 
   struct ProxyOptions
@@ -119,18 +141,8 @@ lib LibGit
     checkout_branch : LibC::Char*
     repository_cb : RepositoryCb
     repository_cb_payload : Void*
-    remote_cb : RemoteCb?
+    remote_cb : RemoteCb
     remote_cb_payload : Void*
-  end
-
-  struct IndexerProgress
-    total_objects : LibC::UInt
-    indexed_objects : LibC::UInt
-    recieved_objects : LibC::UInt
-    local_objects : LibC::UInt
-    total_deltas : LibC::UInt
-    indexed_deltas : LibC::UInt
-    recieved_bytes : LibC::SizeT
   end
 
   struct CheckoutPerfdata
@@ -172,5 +184,8 @@ lib LibGit
     perfdata_payload : Void*
   end
 
-  fun fetch_options_init = git_fetch_options_init(options : FetchOptions*, vefsion : LibC::UInt) : LibC::Int
+  fun fetch_options_init = git_fetch_options_init(options : FetchOptions*, version : LibC::UInt) : LibC::Int
+  fun credential_ssh_key_new = git_credential_ssh_key_new(out : Credential*, username : LibC::Char*, publickey : LibC::Char*, privatekey : LibC::Char*, passphrase : LibC::Char*) : LibC::Int
+  fun credential_ssh_key_memory_new = git_credential_ssh_key_memory_new(out : Credential*, username : LibC::Char*, publickey : LibC::Char*, privatekey : LibC::Char*, passphrase : LibC::Char*) : LibC::Int
+  fun credential_userpass_plaintext_new = git_credential_userpass_plaintext_new(out : Credential*, username : LibC::Char*, password : LibC::Char*) : LibC::Int
 end

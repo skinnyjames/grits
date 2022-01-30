@@ -9,7 +9,7 @@ lib LibGit
   fun repository_free = git_repository_free(repo : Repository)
   fun repository_init = git_repository_init(out : Repository*, path : LibC::Char*, is_bare : LibC::UInt) : LibC::Int
   fun repository_clone = git_repository_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, clone_options : CloneOptions)
-  fun clone_options_init = git_clone_options_init(out : CloneOptions*, version : LibC::UInt) : LibC::Int
+  fun clone_options_init = git_clone_options_init(opts : CloneOptions*, version : LibC::UInt) : LibC::Int
   fun clone = git_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, options : CloneOptions*) : LibC::Int
   fun repository_init_options_init = git_repository_init_options_init(opts : RepositoryInitOptions*, version : LibC::UInt) : LibC::Int
 
