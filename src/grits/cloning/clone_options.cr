@@ -49,14 +49,11 @@ module Grits
     end
 
     class FetchOptions
-      @on_credentials_acquire : CredentialsAcquireCb?
-
       def initialize(@raw : LibGit::FetchOptions, @callbacks_state = FetchOptionsCallbacksState.new)
       end
 
       def on_credentials_acquire(&block : CredentialsAcquireCb)
         @callbacks_state.on_credentials_acquire(&block)
-        @on_credentials_acquire = block
       end
 
       def raw
