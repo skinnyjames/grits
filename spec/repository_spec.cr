@@ -37,7 +37,7 @@ describe Grits::Repo do
 
   describe "#clone" do
     it "clones a repo with default settings" do
-      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git",  Random::Secure.hex(3)) do |repo|
+      Fixture.clone_repo("http://localhost:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3)) do |repo|
         repo.empty?.should eq(false)
       end
     end
@@ -47,12 +47,12 @@ describe Grits::Repo do
       options.fetch_options.on_credentials_acquire do |credential|
         credential.add_ssh_key(
           username: credential.username || "git",
-          public_key_path: ENV["GITHUB_SSH_PUBLIC_KEY_PATH"],
-          private_key_path: ENV["GITHUB_SSH_PRIVATE_KEY_PATH"],
+          public_key_path: Fixture.gitea_public_key_path,
+          private_key_path: Fixture.gitea_private_key_path,
         )
       end
 
-      Fixture.clone_repo("git@github.com:skinnyjames/webdriver.git", Random::Secure.hex(3), options) do |repo|
+      Fixture.clone_repo("ssh://git@localhost:222/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
         repo.empty?.should eq(false)
       end
     end
@@ -67,7 +67,7 @@ describe Grits::Repo do
       options.checkout_options.file_mode = 0o700
       options.checkout_options.dir_mode = 0o700
 
-      Fixture.clone_repo("https://github.com/skinnyjames/graphlyte.git",  Random::Secure.hex(3), options) do |_, path|
+      Fixture.clone_repo("http://localhost:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |_, path|
         Dir.glob("#{path}/**/*") do |file|
           File.info(file).permissions.to_s.should contain("0o700")
         end

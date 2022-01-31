@@ -12,6 +12,18 @@ class Fixture
     FileUtils.rm_rf("#{__DIR__}/tmp")
   end
 
+  def self.gitea_access_token
+    File.read("#{__DIR__}/helpers/gitea/access_token")
+  end
+
+  def self.gitea_public_key_path
+    "#{__DIR__}/helpers/gitea/gitea.pub"
+  end
+
+  def self.gitea_private_key_path
+    "#{__DIR__}/helpers/gitea/gitea"
+  end
+
   def self.random_user
     { email: "sean#{Random::Secure.hex(4)}@sean.com", name: "Grits #{Random::Secure.hex(4)}", time: Time.utc }
   end

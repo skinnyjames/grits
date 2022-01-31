@@ -1,0 +1,15 @@
+kind: pipeline
+name: default
+type: kubernetes
+services:
+  - name: localhost
+    image: skinnyjames/grits-gitea-fixture:latest
+    network_mode: bridge
+steps:
+  - name: tests
+    image: crystallang/crystal:1.1.1
+    environment:
+      CI: true
+    commands:
+      - crystal spec
+    network_mode: bridge
