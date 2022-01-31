@@ -11,7 +11,7 @@ steps:
     pull: always
     environment:
       CI: true
-      GITEA_SECRET_KEY:
+      GITEA_PRIVATE_KEY:
         from_secret: gitea_secret_key
       GITEA_PUBLIC_KEY:
         from_secret: gitea_public_key
