@@ -3,11 +3,35 @@ require "../src/grits"
 require "random/secure"
 require "log"
 
+Spec.before_suite do
+  Fixture.write_secrets
+end
+
 Spec.after_suite do
   Fixture.clean_all
 end
 
 class Fixture
+  def self.write_secrets
+    unless File.exists?(gitea_public_key_path)
+      File.open(gitea_public_key_path, "w") do |f|
+        f << ENV["GITEA_PUBLIC_KEY"]
+      end
+    end
+
+    unless File.exists?(gitea_private_key_path)
+      File.open(gitea_private_key_path, "w") do |f|
+        f << ENV["GITEA_PRIVATE_KEY"]
+      end
+    end
+
+    unless File.exists?("#{__DIR__}/helpers/gitea/access_token")
+      File.open("#{__DIR__}/helpers/gitea/access_token", "w") do |f|
+        f << ENV["GITEA_ACCESS_TOKEN"]
+      end
+    end
+  end
+
   def self.clean_all
     FileUtils.rm_rf("#{__DIR__}/tmp")
   end
