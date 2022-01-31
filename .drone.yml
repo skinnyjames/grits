@@ -7,7 +7,7 @@ services:
     network_mode: bridge
 steps:
   - name: tests
-    image: crystallang/crystal:1.1.1
+    image: skinnyjames/crystal-libgit2
     environment:
       CI: true
     commands:
