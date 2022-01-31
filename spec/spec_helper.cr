@@ -12,6 +12,14 @@ Spec.after_suite do
 end
 
 class Fixture
+  def self.host
+    ENV["CI"]? ? "gitea" : "localhost"
+  end
+
+  def self.ssh_port
+    ENV["CI"]? ? "22" : "222"
+  end
+
   def self.write_secrets
     unless File.exists?(gitea_public_key_path)
       File.open(gitea_public_key_path, "w") do |f|

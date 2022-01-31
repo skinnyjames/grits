@@ -2,7 +2,7 @@ kind: pipeline
 name: default
 type: kubernetes
 services:
-  - name: localhost
+  - name: gitea
     image: skinnyjames/grits-gitea-fixture:latest
     network_mode: bridge
 steps:

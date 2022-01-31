@@ -37,7 +37,7 @@ describe Grits::Repo do
 
   describe "#clone" do
     it "clones a repo with default settings" do
-      Fixture.clone_repo("http://localhost:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3)) do |repo|
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3)) do |repo|
         repo.empty?.should eq(false)
       end
     end
@@ -52,7 +52,7 @@ describe Grits::Repo do
         )
       end
 
-      Fixture.clone_repo("ssh://git@localhost:222/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
+      Fixture.clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
         repo.empty?.should eq(false)
       end
     end
@@ -67,7 +67,7 @@ describe Grits::Repo do
       options.checkout_options.file_mode = 0o700
       options.checkout_options.dir_mode = 0o700
 
-      Fixture.clone_repo("http://localhost:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |_, path|
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |_, path|
         Dir.glob("#{path}/**/*") do |file|
           File.info(file).permissions.to_s.should contain("0o700")
         end
