@@ -16,7 +16,7 @@ Built over `libgit2` with the majority of the bindings borrowed from [smacker/li
    ```yaml
    dependencies:
      grits:
-       github: skinnyjames/grits
+       gitlab: seanchristophergregory/grits
    ```
 
 2. Run `shards install`
@@ -25,22 +25,29 @@ Built over `libgit2` with the majority of the bindings borrowed from [smacker/li
 
 ```crystal
 require "grits"
+
+# see specs
 ```
 
-TODO: Write usage instructions here
 
 ## Development
 
-TODO: Write development instructions here
+To run the gitea test fixture
+
+`docker run -p 3000:3000 -p 222:22 skinnyjames/grits-gitea-fixture:latest`
+
+then
+
+`crystal spec`
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/grits/fork>)
+1. Fork it (<https://gitlab.com/seanchristophergregory/grits/-/forks/new>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+5. Create a new Merge Request
 
 ## Contributors
 
-- [Sean Gregory](https://github.com/your-github-user) - creator and maintainer
+- [Sean Gregory](https://gitlab.com/seanchristohpergregory) - creator and maintainer
