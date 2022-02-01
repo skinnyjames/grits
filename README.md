@@ -1,5 +1,3 @@
-### this project has moved to to [GitLab](https://gitlab.com/seanchristophergregory/grits)
-
 # grits
 
 Git library in progress for Crystal
