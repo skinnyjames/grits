@@ -4,12 +4,10 @@ type: kubernetes
 services:
   - name: gitea
     image: skinnyjames/grits-gitea-fixture:latest
-    pull: always
     network_mode: bridge
 steps:
   - name: tests
     image: skinnyjames/crystal-libgit2
-    pull: always
     environment:
       CI: true
       GITEA_PRIVATE_KEY:
