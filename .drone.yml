@@ -4,6 +4,7 @@ type: kubernetes
 services:
   - name: gitea
     image: skinnyjames/grits-gitea-fixture:latest
+    pull: always
     network_mode: bridge
 steps:
   - name: tests
