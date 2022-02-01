@@ -102,6 +102,17 @@ describe Grits::Repo do
       end
     end
 
+    it "checks a certificate" do
+      options = Grits::Cloning::CloneOptions.default
+      options.fetch_options.on_certificate_check do |cert, host, valid|
+        puts host, valid
+        false
+      end
+      expect_raises(Grits::Error::Git, message: "user rejected certificate for gitlab.com") do
+        Fixture.clone_repo("https://gitlab.com/seanchristophergregory/grits.git",  Random::Secure.hex(3), options) {}
+      end
+    end
+
     it "can track progress of the clone" do
       progresses = [] of Float64
       options = Grits::Cloning::CloneOptions.default

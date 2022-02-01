@@ -4,7 +4,7 @@ module Grits
     alias CheckoutProgressCb = (String, UInt64, UInt64 -> Void)
 
     alias CredentialsAcquireCb = (Credential -> Int32)
-    alias FetchRemoteCbs = CredentialsAcquireCb
+    alias CertificateCheckCb = (LibGit::GitCert, String, Bool -> Bool?)
 
     class FetchOptionsCallbacksState
       getter :callbacks
@@ -17,6 +17,16 @@ module Grits
 
       def empty?
         @callbacks.empty?
+      end
+
+      def on_certificate_check(&block : CertificateCheckCb)
+        @callbacks << :certificate_check
+
+        @on_certificate_check = block
+      end
+
+      def on_certificate_check
+        @on_certificate_check
       end
 
       def on_credentials_acquire(&block : CredentialsAcquireCb)
@@ -60,6 +70,10 @@ module Grits
         @callbacks_state.on_credentials_acquire(&block)
       end
 
+      def on_certificate_check(&block : CertificateCheckCb)
+        @callbacks_state.on_certificate_check(&block)
+      end
+
       def raw
         add_callbacks
 
@@ -80,6 +94,15 @@ module Grits
               username = username_from_url.null? ? nil : String.new(username_from_url)
               credential = Credential.new(credential_ptr, url: resource, username: username)
               callback.try { |cb| cb.call(credential) } || 1
+            end
+          when :certificate_check
+            @raw.callbacks.certificate_check = ->(cert : LibGit::GitCert*, valid : LibC::Int, host : LibC::Char*, payload : Void*) do
+              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_certificate_check
+              hostname = String.new(host)
+              is_valid = valid == 1
+              value = callback.try { |cb| cb.call(cert.value, hostname, is_valid) }
+              return 0 if value.nil?
+              return value ? 1 : -1
             end
           end
         end
