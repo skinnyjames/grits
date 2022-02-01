@@ -12,6 +12,3 @@ test.cr
 /shard.lock
 .vscode/
 test_bindings.cr
-spec/helpers/gitea/gitea
-spec/helpers/gitea/gitea.pub
-spec/helpers/gitea/access_token
