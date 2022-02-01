@@ -4,6 +4,7 @@ type: kubernetes
 services:
   - name: gitea
     image: skinnyjames/grits-gitea-fixture:latest
+    pull: always
     network_mode: bridge
 steps:
   - name: tests
@@ -18,5 +19,7 @@ steps:
       GITEA_ACCESS_TOKEN:
         from_secret: gitea_access_token
     commands:
+      - chmod 700 spec/helpers/gitea/gitea
+      - eval $(ssh-agent)
       - crystal spec
     network_mode: bridge
