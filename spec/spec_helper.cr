@@ -38,8 +38,6 @@ class Fixture
         f << ENV["GITEA_ACCESS_TOKEN"]
       end
     end
-
-    `chmod 700 #{gitea_private_key_path}`
   end
 
   def self.clean_all
