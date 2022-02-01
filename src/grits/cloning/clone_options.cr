@@ -46,6 +46,10 @@ module Grits
       def add_user_pass(*, username : String, password : String)
         LibGit.credential_userpass_plaintext_new(@raw, username, password)
       end
+
+      def from_ssh_agent(*, username : String)
+        LibGit.credential_ssh_key_from_agent(@raw, username)
+      end
     end
 
     class FetchOptions

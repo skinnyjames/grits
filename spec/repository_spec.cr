@@ -42,18 +42,63 @@ describe Grits::Repo do
       end
     end
 
-    it "can authenticate on clone" do
-      options = Grits::Cloning::CloneOptions.default
-      options.fetch_options.on_credentials_acquire do |credential|
-        credential.add_ssh_key(
-          username: credential.username || "git",
-          public_key_path: Fixture.gitea_public_key_path,
-          private_key_path: Fixture.gitea_private_key_path,
-        )
+    describe "authentication" do
+      it "via http" do
+        options = Grits::Cloning::CloneOptions.default
+        options.fetch_options.on_credentials_acquire do |credential|
+          credential.add_user_pass(
+            username: "skinnyjames",
+            password: Fixture.gitea_access_token
+          )
+        end
+
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_private_remote.git", Random::Secure.hex(3), options) do |repo|
+          repo.empty?.should eq(false)
+        end
       end
 
-      Fixture.clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
-        repo.empty?.should eq(false)
+      it "via ssh key paths" do
+        options = Grits::Cloning::CloneOptions.default
+        options.fetch_options.on_credentials_acquire do |credential|
+          credential.add_ssh_key(
+            username: credential.username || "git",
+            public_key_path: Fixture.gitea_public_key_path,
+            private_key_path: Fixture.gitea_private_key_path,
+          )
+        end
+
+        Fixture.clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
+          repo.empty?.should eq(false)
+        end
+      end
+
+      it "via ssh keys" do
+        options = Grits::Cloning::CloneOptions.default
+        options.fetch_options.on_credentials_acquire do |credential|
+          credential.add_ssh_key(
+            username: credential.username || "git",
+            public_key: File.read(Fixture.gitea_public_key_path),
+            private_key: File.read(Fixture.gitea_private_key_path),
+          )
+        end
+        Fixture.clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
+          repo.empty?.should eq(false)
+        end
+      end
+
+      it "via ssh agent" do
+        begin
+          `ssh-add #{Fixture.gitea_private_key_path}`
+          options = Grits::Cloning::CloneOptions.default
+          options.fetch_options.on_credentials_acquire do |credential|
+            credential.from_ssh_agent(username: credential.username || "git")
+          end
+          Fixture.clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(3), options) do |repo|
+            repo.empty?.should eq(false)
+          end
+        ensure
+          `ssh-add -D #{Fixture.gitea_private_key_path}s`
+        end
       end
     end
 
