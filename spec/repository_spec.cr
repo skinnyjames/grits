@@ -88,7 +88,8 @@ describe Grits::Repo do
 
       it "via ssh agent" do
         begin
-          system `ssh-agent -s`
+          ouput = `ssh-agent -s`
+          system output
           `ssh-add #{Fixture.gitea_private_key_path}`
           options = Grits::Cloning::CloneOptions.default
           options.fetch_options.on_credentials_acquire do |credential|
