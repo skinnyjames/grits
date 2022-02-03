@@ -11,6 +11,18 @@ module Grits
 
       @on_credentials_acquire : CredentialsAcquireCb?
 
+      macro define_callback(type, key)
+        def on_{{ key }}(&block : {{ type }})
+          @callbacks <<  :{{ key }}
+
+          @on_{{ key }} = block
+        end
+
+        def on_{{ key }}
+          @on_{{ key }}
+        end
+      end
+
       def initialize
         @callbacks = [] of Symbol
       end
@@ -19,25 +31,8 @@ module Grits
         @callbacks.empty?
       end
 
-      def on_certificate_check(&block : CertificateCheckCb)
-        @callbacks << :certificate_check
-
-        @on_certificate_check = block
-      end
-
-      def on_certificate_check
-        @on_certificate_check
-      end
-
-      def on_credentials_acquire(&block : CredentialsAcquireCb)
-        @callbacks << :credential_acquire
-
-        @on_credentials_acquire = block
-      end
-
-      def on_credentials_acquire
-        @on_credentials_acquire
-      end
+      define_callback CertificateCheckCb, certificate_check
+      define_callback CredentialsAcquireCb, credentials_acquire
     end
 
     class Credential
@@ -87,7 +82,7 @@ module Grits
 
         @callbacks_state.callbacks.each do |cb|
           case cb
-          when :credential_acquire
+          when :credentials_acquire
             @raw.callbacks.credentials = ->(credential_ptr : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  payload : Pointer(Void)) do
               callback = Box(FetchOptionsCallbacksState).unbox(payload).on_credentials_acquire
               resource = String.new(url)
