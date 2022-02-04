@@ -1,3 +1,5 @@
+require "../wrappers/indexer_progress"
+
 module Grits
   module Cloning
 
@@ -5,6 +7,7 @@ module Grits
 
     alias CredentialsAcquireCb = (Credential -> Int32)
     alias CertificateCheckCb = (LibGit::GitCert, String, Bool -> Bool?)
+    alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
 
     class FetchOptionsCallbacksState
       getter :callbacks
@@ -33,6 +36,7 @@ module Grits
 
       define_callback CertificateCheckCb, certificate_check
       define_callback CredentialsAcquireCb, credentials_acquire
+      define_callback IndexerProgressCb, transfer_progress
     end
 
     class Credential
@@ -69,6 +73,10 @@ module Grits
         @callbacks_state.on_certificate_check(&block)
       end
 
+      def on_transfer_progress(&block : IndexerProgressCb)
+        @callbacks_state.on_transfer_progress(&block)
+      end
+
       def raw
         add_callbacks
 
@@ -98,6 +106,13 @@ module Grits
               value = callback.try { |cb| cb.call(cert.value, hostname, is_valid) }
               return 0 if value.nil?
               return value ? 1 : -1
+            end
+          when :transfer_progress
+            @raw.callbacks.transfer_progress = ->(indexer : LibGit::IndexerProgress*, payload : Void*) do
+              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_transfer_progress
+              indexer_progress = Wrappers::IndexerProgress.new(indexer)
+              value = callback.try { |cb| cb.call(indexer_progress) }
+              return value.nil? ? 0 : value ? 0 : -1
             end
           end
         end
