@@ -105,11 +105,39 @@ describe Grits::Repo do
     it "checks a certificate" do
       options = Grits::Cloning::CloneOptions.default
       options.fetch_options.on_certificate_check do |cert, host, valid|
-        puts host, valid
         false
       end
       expect_raises(Grits::Error::Git, message: "user rejected certificate for gitlab.com") do
         Fixture.clone_repo("https://gitlab.com/seanchristophergregory/grits.git",  Random::Secure.hex(3), options) {}
+      end
+    end
+
+    describe "transfer progress" do
+      it "tracks download progress" do
+        progresses = [] of Float64
+        options = Grits::Cloning::CloneOptions.default
+        options.fetch_options.on_transfer_progress do |indexer|
+          progresses << indexer.percent_objects_downloaded
+          true
+        end
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
+          repo.empty?.should eq(false)
+          progresses.should_not be_empty
+          progresses.reduce(-1) do |memo, progress|
+            progress.should be >= memo
+            progress
+          end
+        end
+      end
+
+      it "cancels downloads on return of false" do
+        options = Grits::Cloning::CloneOptions.default
+        options.fetch_options.on_transfer_progress do |indexer|
+          false
+        end
+        expect_raises(Grits::Error::Git, message: "indexer progress callback returned -1") do
+          Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+        end
       end
     end
 
