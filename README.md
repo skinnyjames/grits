@@ -36,9 +36,9 @@ require "grits"
 options = Grits::CloneOptions.default
 options.fetch_options.on_credentials_acquire do |credential|
    credential.add_ssh_key(
-   username: credential.username || "git",
-   public_key: ENV["PUBLIC_KEY"],
-   private_key: ENV["PRIVATE_KEY"],
+      username: credential.username || "git",
+      public_key: ENV["PUBLIC_KEY"],
+      private_key: ENV["PRIVATE_KEY"],
    )
 end
 
