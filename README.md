@@ -46,8 +46,8 @@ Grits::Repo.clone("git@gitlab.com:seanchristophergregory/grits.git", "./local_gr
    repo.index do |index|
       author = { email: "sean@sean.com", name: "Sean Gregory", time: Time.utc }
       committer = author
-      
-      Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
+
+      File.open("#{repo.workdir}something.text", "w") { |f| f << "hello world!" }
       index.add "something.text"
 
       Grits::Commit.create(repo,
