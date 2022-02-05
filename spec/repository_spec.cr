@@ -126,9 +126,11 @@ describe Grits::Repo do
       options = Grits::CloneOptions.default
       options.fetch_options.on_resolve_url do |resolver|
         resolver.fetch?.should eq(true)
-        # resolver.set("http://foobar:3000/skinnyjames/grits_empty_remote")
+        resolver.set("http://foobar:3000/skinnyjames/grits_empty_remote")
       end
-      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+      expect_raises(Grits::Error::Git, message: /failed to resolve address for foobar/) do
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+      end
     end
 
     describe "transfer progress" do

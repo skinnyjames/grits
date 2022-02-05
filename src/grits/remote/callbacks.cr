@@ -33,9 +33,7 @@ module Grits
       end
 
       def set(new_url : String)
-        box = Box.box(new_url)
-        puts new_url.size
-        LibGit.buf_set(@buffer, box, new_url.size)
+        LibGit.buf_set(@buffer, new_url, new_url.size)
       end
     end
 
