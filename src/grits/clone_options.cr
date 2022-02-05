@@ -5,7 +5,7 @@ module Grits
   alias PerformanceDataCb = (Wrappers::PerformanceData -> Void)
   alias FileModeType = LibGit::FilemodeT
   alias CloneLocalType = LibGit::CloneLocalT
-  alias RepositoryCreateCb = (Repo, String, Bool -> Bool?)
+  alias RepositoryCreateCb = (Repo, String, Bool -> Bool?) # not implemented
   class CheckoutOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -89,27 +89,6 @@ module Grits
 
     def local=(type : CloneLocalType)
       to_unsafe.local = type
-    end
-
-    def on_remote_create(&block : RemoteCreateCb)
-      to_unsafe.remote_cb_payload = Box.box(block)
-    end
-
-    def on_repository_create(&block : RepositoryCreateCb)
-      boxed_data = Box.box(block)
-      @@create_cb_box = boxed_data
-
-      to_unsafe.repository_cb_payload = boxed_data
-      to_unsafe.repository_cb = ->(repo : LibGit::Repository, path : LibC::Char*, bare : LibC::Int, payload : Void*) do
-        string_path = String.new(path)
-        raise "something" if repo.null?
-        repository = Repo.new(repo, string_path)
-        is_bare = bare == 0 ? false : true
-        cb = Box(RepositoryCreateCb).unbox(payload)
-        res = cb.call(repository, string_path, is_bare)
-        puts "after cb"
-        res == false ? 1 : 0
-      end
     end
 
     def checkout_options
