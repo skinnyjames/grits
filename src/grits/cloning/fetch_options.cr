@@ -8,7 +8,7 @@ module Grits
       getter :callbacks
 
       macro define_callback(type, key)
-              def on_{{ key }}(&block : {{ type }})
+        def on_{{ key }}(&block : {{ type }})
           @callbacks <<  :{{ key }}
 
           @on_{{ key }} = block
