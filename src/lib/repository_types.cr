@@ -30,7 +30,7 @@ lib LibGit
     STRARRAY
   end
 
-  enum CloneLocal
+  enum CloneLocalT
     Auto
     Local
     NoLocal
@@ -72,7 +72,7 @@ lib LibGit
     Specified
   end
 
-  alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
+  alias RepositoryCb = (Repository, LibC::Char*, LibC::Int, Void* -> LibC::Int)
   alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, Void* -> LibC::Int)
   alias RemoteReadyCb = (Remote, LibC::Int, Void* -> LibC::Int)
   alias CheckoutNotifyCb = (CheckoutNotifyT, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)
@@ -137,7 +137,7 @@ lib LibGit
     checkout_opts : CheckoutOptions
     fetch_opts : FetchOptions
     bare : LibC::Int
-    local : CloneLocal
+    local : CloneLocalT
     checkout_branch : LibC::Char*
     repository_cb : RepositoryCb
     repository_cb_payload : Void*

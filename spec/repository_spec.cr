@@ -42,6 +42,14 @@ describe Grits::Repo do
       end
     end
 
+    it "checks out a branch" do
+      options = Grits::CloneOptions.default
+      options.checkout_branch = "foobar"
+      expect_raises(Grits::Error::Git, message: "reference 'refs/remotes/origin/foobar' not found") do
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+      end
+    end
+
     describe "authentication" do
       it "via http" do
         options = Grits::CloneOptions.default

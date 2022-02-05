@@ -4,7 +4,8 @@ module Grits
   alias CheckoutNotifyType = LibGit::CheckoutNotifyT
   alias PerformanceDataCb = (Wrappers::PerformanceData -> Void)
   alias FileModeType = LibGit::FilemodeT
-
+  alias CloneLocalType = LibGit::CloneLocalT
+  alias RepositoryCreateCb = (Repo, String, Bool -> Bool?) # not implemented
   class CheckoutOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -74,11 +75,18 @@ module Grits
 
     wrap_value raw, version
     wrap_value raw, checkout_branch, true
-    wrap_value raw, bare, true
 
     def initialize(@raw : LibGit::CloneOptions)
       @checkout_options = CheckoutOptions.new(to_unsafe.checkout_opts)
       @fetch_options = FetchOptions.new(to_unsafe.fetch_opts)
+    end
+
+    def bare=(bares : Bool)
+      to_unsafe.bare = bares ? 1 : 0
+    end
+
+    def local=(type : CloneLocalType)
+      to_unsafe.local = type
     end
 
     def checkout_options
