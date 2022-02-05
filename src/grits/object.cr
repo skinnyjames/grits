@@ -13,7 +13,10 @@ module Grits
       end
     end
 
-    wrap raw, id
+    def to_s(io)
+      p = LibGit.oid_tostr_s(to_unsafe)
+      io << String.new(p)
+    end
 
     def initialize(@raw : LibGit::Oid*); end
   end

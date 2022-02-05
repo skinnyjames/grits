@@ -52,6 +52,20 @@ module Grits
         lookup_commit Oid.from_sha(sha)
       end
 
+      def lookup_tree(oid : Oid)
+        Error.giterr LibGit.tree_lookup(out tree, to_unsafe, oid.to_unsafe), "couldn't lookup tree"
+        Tree.new(tree)
+      end
+
+      def lookup_tree(sha : String)
+        lookup_tree Oid.from_sha(string)
+      end
+
+      def last_commit
+        Error.giterr LibGit.reference_name_to_id(out oid, to_unsafe, "HEAD"), "couldn't reference id"
+        lookup_commit Oid.new(pointerof(oid))
+      end
+
       protected def lookup_commit(oid_ptr : Pointer(LibGit::Oid))
         Error.giterr LibGit.commit_lookup(out commit, to_unsafe, oid_ptr), "Cannot load commit"
         Commit.new(commit)

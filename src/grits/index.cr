@@ -18,7 +18,7 @@ module Grits
       true
     end
 
-    def default_tree
+    def tree
       Error.giterr LibGit.index_write_tree(out tree_oid, to_unsafe), "Could not read tree from index"
       Tree.lookup(@repo, tree_oid)
     end
