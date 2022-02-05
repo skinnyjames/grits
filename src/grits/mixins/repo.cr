@@ -45,7 +45,7 @@ module Grits
       end
 
       def lookup_commit(oid : Oid)
-        lookup_commit oid.to_unsafe_ptr
+        lookup_commit oid.to_unsafe
       end
 
       def lookup_commit(sha : String)

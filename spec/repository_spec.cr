@@ -112,6 +112,16 @@ describe Grits::Repo do
       end
     end
 
+    it "updates with the tips?" do
+      options = Grits::CloneOptions.default
+      options.fetch_options.on_update_tips do |remote, oid, oid_2|
+        remote.should eq("refs/remotes/origin/main")
+      end
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |r|
+        r.empty?.should eq(false)
+      end
+    end
+
     describe "transfer progress" do
       it "tracks download progress" do
         progresses = [] of Float64

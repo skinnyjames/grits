@@ -5,6 +5,8 @@ module Grits
     alias CredentialsAcquireCb = (Credential -> Int32)
     alias CertificateCheckCb = (Wrappers::Certificate, String, Bool -> Bool?)
     alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
+    alias UpdateTipsCb = (String, Oid, Oid -> Void)
+    alias PackBuilderProgressCb = (Int32, UInt32, UInt32 -> Void)
 
     struct CallbacksState
       getter :callbacks
@@ -32,6 +34,7 @@ module Grits
       define_callback CertificateCheckCb, certificate_check
       define_callback CredentialsAcquireCb, credentials_acquire
       define_callback IndexerProgressCb, transfer_progress
+      define_callback UpdateTipsCb, update_tips
     end
 
     struct Callbacks
@@ -43,6 +46,7 @@ module Grits
       define_callback credentials_acquire, CredentialsAcquireCb, callbacks_state
       define_callback certificate_check, CertificateCheckCb, callbacks_state
       define_callback transfer_progress, IndexerProgressCb, callbacks_state
+      define_callback update_tips, UpdateTipsCb, callbacks_state
 
       protected def computed_unsafe
         add_callbacks
@@ -80,6 +84,12 @@ module Grits
               indexer_progress = Wrappers::IndexerProgress.new(indexer)
               value = callback.try { |cb| cb.call(indexer_progress) }
               return value.nil? ? 0 : value ? 0 : -1
+            end
+          when :update_tips
+            @raw.update_tips = ->(word : LibC::Char*, oid : LibGit::Oid*, oid_2 : LibGit::Oid*, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_update_tips
+              callback.try { |cb| cb.call(String.new(word), Oid.new(oid), Oid.new(oid_2)) }
+              0
             end
           end
         end
