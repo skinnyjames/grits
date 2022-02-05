@@ -181,24 +181,53 @@ describe Grits::Repo do
       end
     end
 
-    it "can track progress of the clone" do
-      progresses = [] of Float64
-      options = Grits::CloneOptions.default
-      options.checkout_options.on_progress do |path, completed, total|
-         progresses << ((completed / total) * 100).round(2)
+    describe "checkout options" do
+      it "is notified with diff files" do
+        options = Grits::CloneOptions.default
+        options.checkout_options.on_notify do |why, path, baseline, target, workdir|
+          why.should eq(Grits::CheckoutNotifyType::Untracked)
+          path.should match(/file/)
+
+          # only has a target diff
+          baseline.empty?.should eq(true)
+          target.empty?.should eq(false)
+          workdir.empty?.should eq(true)
+
+          target.path.should match(/file/)
+          target.mode.should eq(Grits::FileModeType::Blob)
+        end
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
       end
 
-      options.checkout_options.file_mode = 0o700
-      options.checkout_options.dir_mode = 0o700
-
-      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |_, path|
-        Dir.glob("#{path}/**/*") do |file|
-          File.info(file).permissions.to_s.should contain("0o700")
+      it "can track performance data" do
+        options = Grits::CloneOptions.default
+        options.checkout_options.on_performance_data do |perf|
+          perf.mkdir_calls.should eq(0)
+          perf.stat_calls.should eq(4)
+          perf.chmod_calls.should eq(0)
         end
-        progresses.should_not be_empty
-        progresses.reduce(-1) do |memo, progress|
-          progress.should be > memo
-          progress
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+      end
+
+      it "can track progress of the clone" do
+        progresses = [] of Float64
+        options = Grits::CloneOptions.default
+        options.checkout_options.on_progress do |path, completed, total|
+           progresses << ((completed / total) * 100).round(2)
+        end
+
+        options.checkout_options.file_mode = 0o700
+        options.checkout_options.dir_mode = 0o700
+
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |_, path|
+          Dir.glob("#{path}/**/*") do |file|
+            File.info(file).permissions.to_s.should contain("0o700")
+          end
+          progresses.should_not be_empty
+          progresses.reduce(-1) do |memo, progress|
+            progress.should be > memo
+            progress
+          end
         end
       end
     end
