@@ -75,6 +75,11 @@ module Grits
       include Mixins::Pointable
       include Mixins::Callbacks
 
+      def self.init
+        Error.giterr LibGit.remote_init_callbacks(out cbs, 1), "Can't init remote callbacks"
+        new(cbs)
+      end
+
       def initialize(@raw : LibGit::RemoteCallbacks, @callbacks_state = CallbacksState.new); end
 
       define_callback credentials_acquire, CredentialsAcquireCb, callbacks_state
@@ -87,6 +92,10 @@ module Grits
       define_callback push_negotiation, PushNegotiation, callbacks_state
       define_callback resolve_url, ResolveUrlCb, callbacks_state
 
+      def empty?
+        @callbacks_state.empty?
+      end
+
       protected def computed_unsafe
         add_callbacks
 
@@ -94,7 +103,7 @@ module Grits
       end
 
       protected def add_callbacks
-        return if @callbacks_state.empty?
+        return if empty?
 
         @raw.payload = Box.box(@callbacks_state)
 

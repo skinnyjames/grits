@@ -59,14 +59,14 @@ lib LibGit
     NoPrune
   end
 
-  enum RemoteAutotagOption
+  enum RemoteAutotagOptionT
     Unspecified
     Auto
     None
     All
   end
 
-  enum Proxy
+  enum ProxyT
     None
     Auto
     Specified
@@ -118,10 +118,10 @@ lib LibGit
 
   struct ProxyOptions
     version : LibC::UInt
-    type : Proxy
+    type : ProxyT
     url : LibC::Char*
-    credentials : CredentialsAcquireCb
-    certificate_check : TransportCertificateCheckCb
+    credentials : (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)
+    certificate_check : (GitCert*, LibC::Int, LibC::Char*, Void* -> LibC::Int)
     payload : Void*
   end
 
@@ -156,8 +156,8 @@ lib LibGit
     callbacks : RemoteCallbacks
     prune : FetchPruneT
     update_fetchhead : LibC::Int
-    download_tags : RemoteAutotagOption
-    proxy_options : ProxyOptions
+    download_tags : RemoteAutotagOptionT
+    proxy_opts : ProxyOptions
     custom_headers : Strarray
   end
 

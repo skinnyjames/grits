@@ -102,62 +102,81 @@ describe Grits::Repo do
       end
     end
 
-    it "checks a certificate" do
-      options = Grits::CloneOptions.default
-      options.fetch_options.on_certificate_check do |cert, host, valid|
-        false
-      end
-      expect_raises(Grits::Error::Git, message: "user rejected certificate for gitlab.com") do
-        Fixture.clone_repo("https://gitlab.com/seanchristophergregory/grits.git",  Random::Secure.hex(3), options) {}
-      end
-    end
-
-    it "updates with the tips?" do
-      options = Grits::CloneOptions.default
-      options.fetch_options.on_update_tips do |remote, oid, oid_2|
-        remote.should eq("refs/remotes/origin/main")
-      end
-      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |r|
-        r.empty?.should eq(false)
-      end
-    end
-
-    it "resolves the url" do
-      options = Grits::CloneOptions.default
-      options.fetch_options.on_resolve_url do |resolver|
-        resolver.fetch?.should eq(true)
-        resolver.set("http://foobar:3000/skinnyjames/grits_empty_remote")
-      end
-      expect_raises(Grits::Error::Git, message: /failed to resolve address for foobar/) do
-        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
-      end
-    end
-
-    describe "transfer progress" do
-      it "tracks download progress" do
-        progresses = [] of Float64
+    describe "fetch options" do
+      it "configures a proxy" do
         options = Grits::CloneOptions.default
-        options.fetch_options.on_transfer_progress do |indexer|
-          progresses << indexer.percent_objects_downloaded
-          true
+        options.fetch_options.configure_proxy do |proxy|
+          proxy.url = "https://foobaz"
+          proxy.on_certificate_check do
+            false
+          end
+          proxy.type = LibGit::ProxyT::Specified
+          proxy
         end
-        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
-          repo.empty?.should eq(false)
-          progresses.should_not be_empty
-          progresses.reduce(-1) do |memo, progress|
-            progress.should be >= memo
-            progress
+        expect_raises(Grits::Error::Git, message: /failed to resolve address for foobaz/) do
+          Fixture.clone_repo("https://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+        end
+      end
+
+      describe "remote callbacks" do
+        it "checks a certificate" do
+          options = Grits::CloneOptions.default
+          options.fetch_options.on_certificate_check do |cert, host, valid|
+            false
+          end
+          expect_raises(Grits::Error::Git, message: "user rejected certificate for gitlab.com") do
+            Fixture.clone_repo("https://gitlab.com/seanchristophergregory/grits.git",  Random::Secure.hex(3), options) {}
           end
         end
-      end
 
-      it "cancels downloads on return of false" do
-        options = Grits::CloneOptions.default
-        options.fetch_options.on_transfer_progress do |indexer|
-          false
+        it "updates with the tips?" do
+          options = Grits::CloneOptions.default
+          options.fetch_options.on_update_tips do |remote, oid, oid_2|
+            remote.should eq("refs/remotes/origin/main")
+          end
+          Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |r|
+            r.empty?.should eq(false)
+          end
         end
-        expect_raises(Grits::Error::Git, message: "indexer progress callback returned -1") do
-          Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+
+        it "resolves the url" do
+          options = Grits::CloneOptions.default
+          options.fetch_options.on_resolve_url do |resolver|
+            resolver.fetch?.should eq(true)
+            resolver.set("http://foobar:3000/skinnyjames/grits_empty_remote")
+          end
+          expect_raises(Grits::Error::Git, message: /failed to resolve address for foobar/) do
+            Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+          end
+        end
+
+        describe "transfer progress" do
+          it "tracks download progress" do
+            progresses = [] of Float64
+            options = Grits::CloneOptions.default
+            options.fetch_options.on_transfer_progress do |indexer|
+              progresses << indexer.percent_objects_downloaded
+              true
+            end
+            Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
+              repo.empty?.should eq(false)
+              progresses.should_not be_empty
+              progresses.reduce(-1) do |memo, progress|
+                progress.should be >= memo
+                progress
+              end
+            end
+          end
+
+          it "cancels downloads on return of false" do
+            options = Grits::CloneOptions.default
+            options.fetch_options.on_transfer_progress do |indexer|
+              false
+            end
+            expect_raises(Grits::Error::Git, message: "indexer progress callback returned -1") do
+              Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+            end
+          end
         end
       end
     end
