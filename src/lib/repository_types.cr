@@ -110,7 +110,7 @@ lib LibGit
     pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int) #done
     push_transfer_progress :  (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int) #done
     push_update_reference : (LibC::Char*, LibC::Char*, Void* -> LibC::Int) #done
-    push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done
+    push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done (revisit with PushUpdate**)
     transport : (Transport*, Remote, Void* -> LibC::Int) #revisit but done
     payload : Void*
     resolve_url : (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int) #done

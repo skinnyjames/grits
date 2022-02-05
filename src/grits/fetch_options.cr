@@ -14,6 +14,7 @@ module Grits
     define_callback certificate_check, Remote::CertificateCheckCb, callbacks
     define_callback transfer_progress, Remote::IndexerProgressCb, callbacks
     define_callback update_tips, Remote::UpdateTipsCb, callbacks
+    define_callback resolve_url, Remote::ResolveUrlCb, callbacks
 
     protected def computed_unsafe
       to_unsafe.callbacks = @callbacks.computed_unsafe

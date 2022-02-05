@@ -122,6 +122,15 @@ describe Grits::Repo do
       end
     end
 
+    it "resolves the url" do
+      options = Grits::CloneOptions.default
+      options.fetch_options.on_resolve_url do |resolver|
+        resolver.fetch?.should eq(true)
+        # resolver.set("http://foobar:3000/skinnyjames/grits_empty_remote")
+      end
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}
+    end
+
     describe "transfer progress" do
       it "tracks download progress" do
         progresses = [] of Float64
