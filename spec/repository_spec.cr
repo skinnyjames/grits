@@ -42,6 +42,16 @@ describe Grits::Repo do
       end
     end
 
+    it "customizes the repository create" do
+      options = Grits::CloneOptions.default
+      options.on_repository_create do |repo|
+        puts repo.bare?
+      end
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
+        puts repo
+      end
+    end
+
     describe "authentication" do
       it "via http" do
         options = Grits::CloneOptions.default
@@ -53,6 +63,8 @@ describe Grits::Repo do
         end
 
         Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_private_remote.git", Random::Secure.hex(3), options) do |repo|
+          puts "stuff"
+
           repo.empty?.should eq(false)
         end
       end

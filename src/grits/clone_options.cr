@@ -4,7 +4,8 @@ module Grits
   alias CheckoutNotifyType = LibGit::CheckoutNotifyT
   alias PerformanceDataCb = (Wrappers::PerformanceData -> Void)
   alias FileModeType = LibGit::FilemodeT
-
+  alias CloneLocalType = LibGit::CloneLocalT
+  alias RepositoryCreateCb = (Repo, String, Bool -> Bool?)
   class CheckoutOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -67,6 +68,8 @@ module Grits
     include Mixins::Pointable
     include Mixins::Wrapper
 
+    @@create_cb_box : Pointer(Void)?
+
     def self.default
       Error.giterr LibGit.clone_options_init(out opts, LibGit::GIT_CLONE_OPTIONS_VERSION), "Can't create clone options"
       new opts
@@ -74,11 +77,39 @@ module Grits
 
     wrap_value raw, version
     wrap_value raw, checkout_branch, true
-    wrap_value raw, bare, true
 
     def initialize(@raw : LibGit::CloneOptions)
       @checkout_options = CheckoutOptions.new(to_unsafe.checkout_opts)
       @fetch_options = FetchOptions.new(to_unsafe.fetch_opts)
+    end
+
+    def bare=(bares : Bool)
+      to_unsafe.bare = bares ? 1 : 0
+    end
+
+    def local=(type : CloneLocalType)
+      to_unsafe.local = type
+    end
+
+    def on_remote_create(&block : RemoteCreateCb)
+      to_unsafe.remote_cb_payload = Box.box(block)
+    end
+
+    def on_repository_create(&block : RepositoryCreateCb)
+      boxed_data = Box.box(block)
+      @@create_cb_box = boxed_data
+
+      to_unsafe.repository_cb_payload = boxed_data
+      to_unsafe.repository_cb = ->(repo : LibGit::Repository, path : LibC::Char*, bare : LibC::Int, payload : Void*) do
+        string_path = String.new(path)
+        raise "something" if repo.null?
+        repository = Repo.new(repo, string_path)
+        is_bare = bare == 0 ? false : true
+        cb = Box(RepositoryCreateCb).unbox(payload)
+        res = cb.call(repository, string_path, is_bare)
+        puts "after cb"
+        res == false ? 1 : 0
+      end
     end
 
     def checkout_options
