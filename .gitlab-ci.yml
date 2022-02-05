@@ -1,0 +1,18 @@
+image: "crystallang/crystal:latest"
+
+before_script:
+  - shards install
+
+cache:
+  paths:
+    - lib/
+
+pages:
+  stage: deploy
+  script:
+    - crystal docs -o public src/grits.cr
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
