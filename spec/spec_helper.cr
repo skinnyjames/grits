@@ -79,6 +79,10 @@ class Fixture
     end
   end
 
+  def self.tmp_path
+    "#{__DIR__}/tmp/#{Random::Secure.hex(5)}"
+  end
+
   def self.init_repo(**args, &block)
     path = "#{__DIR__}/tmp/#{Random::Secure.hex(5)}"
     begin

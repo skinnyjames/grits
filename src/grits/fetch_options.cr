@@ -67,7 +67,7 @@ module Grits
         memo << "#{k}: #{v}"
         memo
       end
-      strarr.strings = arr
+      strarr.strings = arr.map &.to_unsafe
       strarr.count = arr.count
       to_unsafe.custom_headers = strarr
     end

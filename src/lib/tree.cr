@@ -1,12 +1,12 @@
 @[Link("git2")]
 lib LibGit
   enum FilemodeT
-    FilemodeUnreadable     =     0
-    FilemodeTree           = 16384
-    FilemodeBlob           = 33188
-    FilemodeBlobExecutable = 33261
-    FilemodeLink           = 40960
-    FilemodeCommit         = 57344
+    Unreadable     =     0
+    Tree           = 16384
+    Blob           = 33188
+    BlobExecutable = 33261
+    Link           = 40960
+    Commit         = 57344
   end
 
   enum TreewalkMode

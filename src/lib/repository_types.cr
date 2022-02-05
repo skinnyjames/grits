@@ -37,7 +37,7 @@ lib LibGit
     LocalNoLinks
   end
 
-  enum CheckoutNotify
+  enum CheckoutNotifyT
     None
     Conflict
     Diry
@@ -75,7 +75,7 @@ lib LibGit
   alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
   alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, Void* -> LibC::Int)
   alias RemoteReadyCb = (Remote, LibC::Int, Void* -> LibC::Int)
-  alias CheckoutNotifyCb = (CheckoutNotify, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)
+  alias CheckoutNotifyCb = (CheckoutNotifyT, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)
   alias CheckoutProgressCb = (LibC::Char*, LibC::SizeT, LibC::SizeT, Void* -> Void)
   alias CheckoutPerfdataCb = (CheckoutPerfdata*, Void* -> Void)
   alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)
