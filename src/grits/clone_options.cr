@@ -68,8 +68,6 @@ module Grits
     include Mixins::Pointable
     include Mixins::Wrapper
 
-    @@create_cb_box : Pointer(Void)?
-
     def self.default
       Error.giterr LibGit.clone_options_init(out opts, LibGit::GIT_CLONE_OPTIONS_VERSION), "Can't create clone options"
       new opts
