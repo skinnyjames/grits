@@ -182,6 +182,23 @@ describe Grits::Repo do
     end
 
     describe "checkout options" do
+      it "can create an alternative target dir" do
+        path = Fixture.tmp_path
+        options = Grits::CloneOptions.default
+        options.checkout_options.target_directory = path
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
+          Dir.exists?(path).should eq(true)
+        end
+      end
+
+      it "matches paths to checkout" do
+        options = Grits::CloneOptions.default
+        options.checkout_options.paths = ["foo"]
+        Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) do |repo|
+          Dir.entries(repo.workdir).should_not contain("file1")
+        end
+      end
+
       it "is notified with diff files" do
         options = Grits::CloneOptions.default
         options.checkout_options.on_notify do |why, path, baseline, target, workdir|

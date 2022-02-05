@@ -2,7 +2,6 @@ module Grits
   module Wrappers
     class PushUpdate
       include Mixins::Pointable
-      include Mixins::Wrapper
 
       def initialize(@raw : LibGit::PushUpdate*); end
 

@@ -14,7 +14,6 @@ module Grits
     wrap_value raw, file_mode, true
     wrap_value raw, fild_open_flags, true
     wrap_value raw, notify_flags, true
-    wrap_value raw, paths
     wrap_value raw, target_directory, true
     wrap_value raw, ancestor_label
     wrap_value raw, our_label
@@ -25,6 +24,14 @@ module Grits
     end
 
     def initialize(@raw : LibGit::CheckoutOptions)
+    end
+
+    def paths=(pathspec = [] of String)
+      strarr = LibGit::Strarray.new
+      strarr.strings = pathspec.map &.to_unsafe
+      strarr.count = pathspec.size
+
+      to_unsafe.paths = strarr
     end
 
     def on_performance_data(&block : PerformanceDataCb)
