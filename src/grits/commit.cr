@@ -94,6 +94,20 @@ module Grits
       Signature.new(LibGit.commit_committer(to_unsafe))
     end
 
+    def tree
+      Error.giterr LibGit.commit_tree(out tree, to_unsafe), "can't find tree"
+      Tree.new(tree)
+    end
+
+    def sha
+      id.to_s
+    end
+
+    def id
+      oid = LibGit.commit_id(to_unsafe)
+      Oid.new(oid)
+    end
+
     def free
       LibGit.commit_free(to_unsafe)
     end
