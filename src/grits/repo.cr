@@ -21,7 +21,7 @@ module Grits
     def self.clone(
       url : String,
       local_path : String = Dir.cwd,
-      options : Cloning::CloneOptions = Cloning::CloneOptions.default
+      options : CloneOptions = CloneOptions.default
     )
       raw_options = options.computed_unsafe
       Error.giterr LibGit.clone(out repo, url, local_path, pointerof(raw_options)), "Can't clone repo"
