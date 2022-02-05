@@ -5,6 +5,37 @@ module Grits
     alias CredentialsAcquireCb = (Credential -> Int32)
     alias CertificateCheckCb = (Wrappers::Certificate, String, Bool -> Bool?)
     alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
+    # these may return things that affect the remote instead of Void (no docs)
+    alias UpdateTipsCb = (String, Oid, Oid -> Void)
+    alias PackBuilderProgressCb = (Int32, UInt32, UInt32 -> Void)
+    alias PushTransferProgressCb = (UInt32, UInt32, LibC::SizeT -> Void)
+    alias PushUpdateReferenceCb = (String, String -> Bool?)
+    alias PushNegotiation = (Wrappers::PushUpdate, LibC::SizeT -> Void)
+    alias ResolveUrlCb = (UrlResolver -> Int32?)
+
+    struct UrlResolver
+      def initialize(@buffer : LibGit::Buf*, @url : LibC::Char*, @direction : LibC::Int); end
+
+      def url
+        String.new(@url)
+      end
+
+      def direction
+        @direction == 0 ? :fetch : :push
+      end
+
+      def push?
+        direction == :push
+      end
+
+      def fetch?
+        direction == :fetch
+      end
+
+      def set(new_url : String)
+        LibGit.buf_set(@buffer, new_url, new_url.size)
+      end
+    end
 
     struct CallbacksState
       getter :callbacks
@@ -32,6 +63,12 @@ module Grits
       define_callback CertificateCheckCb, certificate_check
       define_callback CredentialsAcquireCb, credentials_acquire
       define_callback IndexerProgressCb, transfer_progress
+      define_callback UpdateTipsCb, update_tips
+      define_callback PackBuilderProgressCb, pack_progress
+      define_callback PushTransferProgressCb, push_progress
+      define_callback PushUpdateReferenceCb, push_update_reference
+      define_callback PushNegotiation, push_negotiation
+      define_callback ResolveUrlCb, resolve_url
     end
 
     struct Callbacks
@@ -43,6 +80,12 @@ module Grits
       define_callback credentials_acquire, CredentialsAcquireCb, callbacks_state
       define_callback certificate_check, CertificateCheckCb, callbacks_state
       define_callback transfer_progress, IndexerProgressCb, callbacks_state
+      define_callback update_tips, UpdateTipsCb, callbacks_state
+      define_callback pack_progress, PackBuilderProgressCb, callbacks_state
+      define_callback push_progress, PushTransferProgressCb, callbacks_state
+      define_callback push_update_reference, PushUpdateReferenceCb, callbacks_state
+      define_callback push_negotiation, PushNegotiation, callbacks_state
+      define_callback resolve_url, ResolveUrlCb, callbacks_state
 
       protected def computed_unsafe
         add_callbacks
@@ -80,6 +123,49 @@ module Grits
               indexer_progress = Wrappers::IndexerProgress.new(indexer)
               value = callback.try { |cb| cb.call(indexer_progress) }
               return value.nil? ? 0 : value ? 0 : -1
+            end
+          when :update_tips
+            @raw.update_tips = ->(word : LibC::Char*, oid : LibGit::Oid*, oid_2 : LibGit::Oid*, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_update_tips
+              callback.try { |cb| cb.call(String.new(word), Oid.new(oid), Oid.new(oid_2)) }
+              0
+            end
+          when :pack_progress
+            @raw.pack_progress = ->(stage : LibC::Int, current : LibC::UInt32T, total : LibC::UInt32T, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_pack_progress
+              callback.try do |cb|
+                cb.call(stage.to_i32, current.to_u32, total.to_u32)
+              end
+              0
+            end
+          when :push_progress
+            @raw.push_transfer_progress = ->(current : LibC::UInt, total : LibC::UInt, bytes : LibC::SizeT, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_push_progress
+              callback.try do |cb|
+                cb.call(current.to_u32, total.to_u32, bytes)
+              end
+              0
+            end
+          when :push_update_reference
+            @raw.push_update_reference = ->(refname : LibC::Char*, status : LibC::Char*, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_push_update_reference
+              res = callback.try { |cb| cb.call(String.new(refname), String.new(status)) }
+              return 1 if res == false
+              0
+            end
+          when :push_negotiation
+            @raw.push_negotiation = ->(updates : LibGit::PushUpdate**, length : LibC::SizeT, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_push_negotiation
+              update = Wrappers::PushUpdate.new(updates.value)
+              callback.try { |cb| cb.call(update, length) }
+              0
+            end
+          when :resolve_url
+            @raw.resolve_url = ->(buffer : LibGit::Buf*, url : LibC::Char*, direction : LibC::Int, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_resolve_url
+              resolver = UrlResolver.new(buffer, url, direction)
+              ret = callback.try { |cb| cb.call(resolver) }
+              ret.nil? ? LibGit::ErrorCode::Passthrough.to_i32 : ret
             end
           end
         end
