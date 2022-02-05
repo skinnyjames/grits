@@ -44,7 +44,7 @@ describe Grits::Repo do
 
     describe "authentication" do
       it "via http" do
-        options = Grits::Cloning::CloneOptions.default
+        options = Grits::CloneOptions.default
         options.fetch_options.on_credentials_acquire do |credential|
           credential.add_user_pass(
             username: "skinnyjames",
@@ -58,7 +58,7 @@ describe Grits::Repo do
       end
 
       it "via ssh key paths" do
-        options = Grits::Cloning::CloneOptions.default
+        options = Grits::CloneOptions.default
         options.fetch_options.on_credentials_acquire do |credential|
           credential.add_ssh_key(
             username: credential.username || "git",
@@ -73,7 +73,7 @@ describe Grits::Repo do
       end
 
       it "via ssh keys" do
-        options = Grits::Cloning::CloneOptions.default
+        options = Grits::CloneOptions.default
         options.fetch_options.on_credentials_acquire do |credential|
           credential.add_ssh_key(
             username: credential.username || "git",
@@ -89,7 +89,7 @@ describe Grits::Repo do
       it "via ssh agent" do
         begin
           `ssh-add #{Fixture.gitea_private_key_path}`
-          options = Grits::Cloning::CloneOptions.default
+          options = Grits::CloneOptions.default
           options.fetch_options.on_credentials_acquire do |credential|
             credential.from_ssh_agent(username: credential.username || "git")
           end
@@ -103,7 +103,7 @@ describe Grits::Repo do
     end
 
     it "checks a certificate" do
-      options = Grits::Cloning::CloneOptions.default
+      options = Grits::CloneOptions.default
       options.fetch_options.on_certificate_check do |cert, host, valid|
         false
       end
@@ -115,7 +115,7 @@ describe Grits::Repo do
     describe "transfer progress" do
       it "tracks download progress" do
         progresses = [] of Float64
-        options = Grits::Cloning::CloneOptions.default
+        options = Grits::CloneOptions.default
         options.fetch_options.on_transfer_progress do |indexer|
           progresses << indexer.percent_objects_downloaded
           true
@@ -131,7 +131,7 @@ describe Grits::Repo do
       end
 
       it "cancels downloads on return of false" do
-        options = Grits::Cloning::CloneOptions.default
+        options = Grits::CloneOptions.default
         options.fetch_options.on_transfer_progress do |indexer|
           false
         end
@@ -143,7 +143,7 @@ describe Grits::Repo do
 
     it "can track progress of the clone" do
       progresses = [] of Float64
-      options = Grits::Cloning::CloneOptions.default
+      options = Grits::CloneOptions.default
       options.checkout_options.on_progress do |path, completed, total|
          progresses << ((completed / total) * 100).round(2)
       end

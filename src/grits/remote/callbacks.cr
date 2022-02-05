@@ -1,10 +1,12 @@
 module Grits
-  module Cloning
+  module Remote
+    include Mixins::Pointable
+
     alias CredentialsAcquireCb = (Credential -> Int32)
     alias CertificateCheckCb = (Wrappers::Certificate, String, Bool -> Bool?)
     alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
 
-    struct FetchOptionsCallbacksState
+    struct CallbacksState
       getter :callbacks
 
       macro define_callback(type, key)
@@ -32,24 +34,15 @@ module Grits
       define_callback IndexerProgressCb, transfer_progress
     end
 
-    class FetchOptions
+    struct Callbacks
       include Mixins::Pointable
-      include Mixins::Wrapper
+      include Mixins::Callbacks
 
-      def initialize(@raw : LibGit::FetchOptions, @callbacks_state = FetchOptionsCallbacksState.new)
-      end
+      def initialize(@raw : LibGit::RemoteCallbacks, @callbacks_state = CallbacksState.new); end
 
-      def on_credentials_acquire(&block : CredentialsAcquireCb)
-        @callbacks_state.on_credentials_acquire(&block)
-      end
-
-      def on_certificate_check(&block : CertificateCheckCb)
-        @callbacks_state.on_certificate_check(&block)
-      end
-
-      def on_transfer_progress(&block : IndexerProgressCb)
-        @callbacks_state.on_transfer_progress(&block)
-      end
+      define_callback credentials_acquire, CredentialsAcquireCb, callbacks_state
+      define_callback certificate_check, CertificateCheckCb, callbacks_state
+      define_callback transfer_progress, IndexerProgressCb, callbacks_state
 
       protected def computed_unsafe
         add_callbacks
@@ -57,24 +50,24 @@ module Grits
         to_unsafe
       end
 
-      private def add_callbacks
-          return if @callbacks_state.empty?
+      protected def add_callbacks
+        return if @callbacks_state.empty?
 
-        @raw.callbacks.payload = Box.box(@callbacks_state)
+        @raw.payload = Box.box(@callbacks_state)
 
         @callbacks_state.callbacks.each do |cb|
           case cb
           when :credentials_acquire
-            @raw.callbacks.credentials = ->(credential_ptr : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  payload : Pointer(Void)) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_credentials_acquire
+            @raw.credentials = ->(credential_ptr : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  payload : Pointer(Void)) do
+              callback = Box(CallbacksState).unbox(payload).on_credentials_acquire
               resource = String.new(url)
               username = username_from_url.null? ? nil : String.new(username_from_url)
               credential = Credential.new(credential_ptr, url: resource, username: username)
               callback.try { |cb| cb.call(credential) } || 1
             end
           when :certificate_check
-            @raw.callbacks.certificate_check = ->(cert : LibGit::GitCert*, valid : LibC::Int, host : LibC::Char*, payload : Void*) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_certificate_check
+            @raw.certificate_check = ->(cert : LibGit::GitCert*, valid : LibC::Int, host : LibC::Char*, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_certificate_check
               hostname = String.new(host)
               is_valid = valid == 1
               value = callback.try { |cb| cb.call(Wrappers::Certificate.new(cert), hostname, is_valid) }
@@ -82,8 +75,8 @@ module Grits
               return value ? 1 : -1
             end
           when :transfer_progress
-            @raw.callbacks.transfer_progress = ->(indexer : LibGit::IndexerProgress*, payload : Void*) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_transfer_progress
+            @raw.transfer_progress = ->(indexer : LibGit::IndexerProgress*, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_transfer_progress
               indexer_progress = Wrappers::IndexerProgress.new(indexer)
               value = callback.try { |cb| cb.call(indexer_progress) }
               return value.nil? ? 0 : value ? 0 : -1
