@@ -1,15 +1,11 @@
 module Grits
   module Mixins
     module Pointable
-      def value
+      protected def to_unsafe
         @raw
       end
 
-      def raw
-        @raw
-      end
-
-      def pointer
+      protected def to_unsafe_ptr
         pointerof(@raw)
       end
     end

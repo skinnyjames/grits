@@ -3,7 +3,7 @@ module Grits
     include Mixins::Pointable
 
     def self.lookup(repo : Grits::Repo, oid)
-      Error.giterr LibGit.tree_lookup(out tree, repo.raw, pointerof(oid)), "Cannot find tree from id"
+      Error.giterr LibGit.tree_lookup(out tree, repo.to_unsafe, pointerof(oid)), "Cannot find tree from id"
       new(tree)
     end
 
