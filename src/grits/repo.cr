@@ -3,6 +3,7 @@ require "file_utils"
 module Grits
   class Repo
     include Mixins::Pointable
+    include Mixins::Wrapper
     include Mixins::Repo
 
     def self.open(path : String)
@@ -22,7 +23,7 @@ module Grits
       local_path : String = Dir.cwd,
       options : Cloning::CloneOptions = Cloning::CloneOptions.default
     )
-      raw_options = options.raw
+      raw_options = options.computed_unsafe
       Error.giterr LibGit.clone(out repo, url, local_path, pointerof(raw_options)), "Can't clone repo"
       new(repo, local_path)
     end
@@ -58,11 +59,11 @@ module Grits
     end
 
     def free
-      LibGit.repository_free(@raw)
+      LibGit.repository_free(to_unsafe)
     end
 
     def index
-      Error.giterr LibGit.repository_index(out index, @raw), "Index did not load for repository"
+      Error.giterr LibGit.repository_index(out index, to_unsafe), "Index did not load for repository"
       Index.new(index, self)
     end
 

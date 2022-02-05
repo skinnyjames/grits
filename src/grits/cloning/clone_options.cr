@@ -1,143 +1,21 @@
-require "../wrappers/indexer_progress"
-
 module Grits
   module Cloning
-
     alias CheckoutProgressCb = (String, UInt64, UInt64 -> Void)
 
-    alias CredentialsAcquireCb = (Credential -> Int32)
-    alias CertificateCheckCb = (LibGit::GitCert, String, Bool -> Bool?)
-    alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
-
-    class FetchOptionsCallbacksState
-      getter :callbacks
-
-      @on_credentials_acquire : CredentialsAcquireCb?
-
-      macro define_callback(type, key)
-        def on_{{ key }}(&block : {{ type }})
-          @callbacks <<  :{{ key }}
-
-          @on_{{ key }} = block
-        end
-
-        def on_{{ key }}
-          @on_{{ key }}
-        end
-      end
-
-      def initialize
-        @callbacks = [] of Symbol
-      end
-
-      def empty?
-        @callbacks.empty?
-      end
-
-      define_callback CertificateCheckCb, certificate_check
-      define_callback CredentialsAcquireCb, credentials_acquire
-      define_callback IndexerProgressCb, transfer_progress
-    end
-
-    class Credential
-      getter :url, :username, :raw
-
-      def initialize(@raw : LibGit::Credential*, @url : String, @username : String?); end
-
-      def add_ssh_key(*, username : String, public_key_path : String, private_key_path : String, passphrase : String? = nil)
-        LibGit.credential_ssh_key_new(@raw, username, public_key_path, private_key_path, passphrase)
-      end
-
-      def add_ssh_key(*, username : String, public_key : String, private_key : String, passphrase : String? = nil)
-        LibGit.credential_ssh_key_memory_new(@raw, username, public_key, private_key, passphrase)
-      end
-
-      def add_user_pass(*, username : String, password : String)
-        LibGit.credential_userpass_plaintext_new(@raw, username, password)
-      end
-
-      def from_ssh_agent(*, username : String)
-        LibGit.credential_ssh_key_from_agent(@raw, username)
-      end
-    end
-
-    class FetchOptions
-      def initialize(@raw : LibGit::FetchOptions, @callbacks_state = FetchOptionsCallbacksState.new)
-      end
-
-      def on_credentials_acquire(&block : CredentialsAcquireCb)
-        @callbacks_state.on_credentials_acquire(&block)
-      end
-
-      def on_certificate_check(&block : CertificateCheckCb)
-        @callbacks_state.on_certificate_check(&block)
-      end
-
-      def on_transfer_progress(&block : IndexerProgressCb)
-        @callbacks_state.on_transfer_progress(&block)
-      end
-
-      def raw
-        add_callbacks
-
-        @raw
-      end
-
-      private def add_callbacks
-        return if @callbacks_state.empty?
-
-        @raw.callbacks.payload = Box.box(@callbacks_state)
-
-        @callbacks_state.callbacks.each do |cb|
-          case cb
-          when :credentials_acquire
-            @raw.callbacks.credentials = ->(credential_ptr : LibGit::Credential*, url : LibC::Char*, username_from_url : LibC::Char*, allowed_types : LibC::UInt,  payload : Pointer(Void)) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_credentials_acquire
-              resource = String.new(url)
-              username = username_from_url.null? ? nil : String.new(username_from_url)
-              credential = Credential.new(credential_ptr, url: resource, username: username)
-              callback.try { |cb| cb.call(credential) } || 1
-            end
-          when :certificate_check
-            @raw.callbacks.certificate_check = ->(cert : LibGit::GitCert*, valid : LibC::Int, host : LibC::Char*, payload : Void*) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_certificate_check
-              hostname = String.new(host)
-              is_valid = valid == 1
-              value = callback.try { |cb| cb.call(cert.value, hostname, is_valid) }
-              return 0 if value.nil?
-              return value ? 1 : -1
-            end
-          when :transfer_progress
-            @raw.callbacks.transfer_progress = ->(indexer : LibGit::IndexerProgress*, payload : Void*) do
-              callback = Box(FetchOptionsCallbacksState).unbox(payload).on_transfer_progress
-              indexer_progress = Wrappers::IndexerProgress.new(indexer)
-              value = callback.try { |cb| cb.call(indexer_progress) }
-              return value.nil? ? 0 : value ? 0 : -1
-            end
-          end
-        end
-      end
-    end
-
     class CheckoutOptions
-      delegate(
-        :version,
-        :version=,
-        :dir_mode,
-        :dir_mode=,
-        :file_mode,
-        :file_mode=,
-        :file_open_flags,
-        :file_open_flags=,
-        :notify_flags,
-        :notify_flags=,
-        :paths,
-        :target_directory,
-        :ancestor_label,
-        :our_label,
-        :their_label,
-        to: @raw
-      )
+      include Mixins::Pointable
+      include Mixins::Wrapper
+
+      wrap_value raw, version
+      wrap_value raw, dir_mode, true
+      wrap_value raw, file_mode, true
+      wrap_value raw, fild_open_flags, true
+      wrap_value raw, notify_flags, true
+      wrap_value raw, paths
+      wrap_value raw, target_directory
+      wrap_value raw, ancestor_label
+      wrap_value raw, our_label
+      wrap_value rwa, their_label
 
       def initialize(@raw : LibGit::CheckoutOptions)
       end
@@ -150,28 +28,24 @@ module Grits
           cb.call(string_path, completed_steps, total_steps)
         end
       end
-
-      def raw
-        @raw
-      end
     end
 
     class CloneOptions
+      include Mixins::Pointable
+      include Mixins::Wrapper
+
       def self.default
         Error.giterr LibGit.clone_options_init(out opts, LibGit::GIT_CLONE_OPTIONS_VERSION), "Can't create clone options"
         new opts
       end
 
-      delegate(
-        :version,
-        :checkout_branch,
-        :bare,
-        to: @raw
-      )
+      wrap_value raw, version
+      wrap_value raw, checkout_branch, true
+      wrap_value raw, bare, true
 
       def initialize(@raw : LibGit::CloneOptions)
-        @checkout_options = CheckoutOptions.new(@raw.checkout_opts)
-        @fetch_options = FetchOptions.new(@raw.fetch_opts)
+        @checkout_options = CheckoutOptions.new(to_unsafe.checkout_opts)
+        @fetch_options = FetchOptions.new(to_unsafe.fetch_opts)
       end
 
       def checkout_options
@@ -182,10 +56,10 @@ module Grits
         @fetch_options
       end
 
-      def raw
-        @raw.checkout_opts = checkout_options.raw
-        @raw.fetch_opts = fetch_options.raw
-        @raw
+      protected def computed_unsafe
+        to_unsafe.checkout_opts = checkout_options.to_unsafe
+        to_unsafe.fetch_opts = fetch_options.computed_unsafe
+        to_unsafe
       end
     end
   end

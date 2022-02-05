@@ -1,5 +1,7 @@
 module Grits
   struct Signature
+    include Mixins::Pointable
+
     def self.make(name : String, email : String, time : Time)
       stamp = LibGit::Time.new(time: time.to_unix, offset: time.offset)
       Error.giterr LibGit.signature_new(out signature_ptr, name, email, time.to_unix, time.offset), "Cannot create signature"
@@ -18,28 +20,24 @@ module Grits
     def initialize(@raw : Pointer(LibGit::Signature)); end
 
     def name
-      String.new(@raw.value.name)
+      String.new(to_unsafe.value.name)
     end
 
     def email
-      String.new(@raw.value.email)
+      String.new(to_unsafe.value.email)
     end
 
     def time
-      Time.unix @raw.value.when.time
-    end
-
-    def raw
-      @raw
+      Time.unix to_unsafe.value.when.time
     end
 
     def free
-      LibGit.signature_free(@raw)
+      LibGit.signature_free(to_unsafe)
     end
   end
 
 
-  class Commit
+  struct Commit
     include Mixins::Pointable
 
     alias SignatureTuple = { name: String, email: String, time: Time }
@@ -70,10 +68,10 @@ module Grits
 
       parent_size = parents.size.to_u64
       parent_refs = parents.map do |id|
-        repo.lookup_commit(id).raw
+        repo.lookup_commit(id).to_unsafe
       end
 
-      LibGit.commit_create(out commit_id, repo.raw, update_ref, author_signature.raw, committer_signature.raw, encoding, message, tree.raw, parent_size, parent_refs)
+      LibGit.commit_create(out commit_id, repo.to_unsafe, update_ref, author_signature.to_unsafe, committer_signature.to_unsafe, encoding, message, tree.to_unsafe, parent_size, parent_refs)
       commit = repo.lookup_commit(pointerof(commit_id))
 
       author_signature.free
@@ -85,19 +83,19 @@ module Grits
     def initialize(@raw : LibGit::Commit); end
 
     def message
-      String.new LibGit.commit_message(@raw)
+      String.new LibGit.commit_message(to_unsafe)
     end
 
     def author
-      Signature.new(LibGit.commit_author(@raw))
+      Signature.new(LibGit.commit_author(to_unsafe))
     end
 
     def committer
-      Signature.new(LibGit.commit_committer(@raw))
+      Signature.new(LibGit.commit_committer(to_unsafe))
     end
 
     def free
-      LibGit.commit_free(@raw)
+      LibGit.commit_free(to_unsafe)
     end
   end
 end

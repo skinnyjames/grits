@@ -1,5 +1,6 @@
 require "./lib/*"
 require "./grits/mixins/*"
+require "./grits/wrappers/*"
 require "./grits/cloning/*"
 require "./grits/*"
 

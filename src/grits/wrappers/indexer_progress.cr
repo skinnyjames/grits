@@ -1,5 +1,3 @@
-require "../mixins/wrapper"
-
 module Grits
   module Wrappers
     class IndexerProgress

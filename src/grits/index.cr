@@ -10,21 +10,21 @@ module Grits
     end
 
     def add_file(path : String) : Void
-      Error.giterr LibGit.index_add_bypath(@raw, path), "Cannot add file #{path}"
+      Error.giterr LibGit.index_add_bypath(to_unsafe, path), "Cannot add file #{path}"
     end
 
     def write : Bool
-      Error.giterr LibGit.index_write(@raw), "Index could not be written"
+      Error.giterr LibGit.index_write(to_unsafe), "Index could not be written"
       true
     end
 
     def default_tree
-      Error.giterr LibGit.index_write_tree(out tree_oid, @raw), "Could not read tree from index"
+      Error.giterr LibGit.index_write_tree(out tree_oid, to_unsafe), "Could not read tree from index"
       Tree.lookup(@repo, tree_oid)
     end
 
     def free
-      LibGit.index_free(@raw)
+      LibGit.index_free(to_unsafe)
     end
   end
 end
