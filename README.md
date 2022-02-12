@@ -1,8 +1,8 @@
 # grits
 
-[![Build Status](http://drone.skinnyjames.net/api/badges/seanchristophergregory/grits/status.svg)](http://drone.skinnyjames.net/seanchristophergregory/grits)
+[![Build Status](http://drone.skinnyjames.net/api/badges/skinnyjames/grits/status.svg)](http://drone.skinnyjames.net/skinnyjames/grits)
 
-[api docs](https://seanchristophergregory.gitlab.io/grits/index.html)
+[api docs](https://skinnyjames.gitlab.io/grits/index.html)
 
 
 Git library in progress for Crystal
@@ -21,7 +21,7 @@ Built over `libgit2` with the majority of the bindings borrowed from [smacker/li
    ```yaml
    dependencies:
      grits:
-       gitlab: seanchristophergregory/grits
+       gitlab: skinnyjames/grits
    ```
 
 2. Run `shards install`
@@ -87,4 +87,4 @@ then
 
 ## Contributors
 
-- [Sean Gregory](https://gitlab.com/seanchristohpergregory) - creator and maintainer
+- [Sean Gregory](https://gitlab.com/skinnyjames) - creator and maintainer
