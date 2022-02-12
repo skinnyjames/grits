@@ -79,7 +79,7 @@ then
 
 ## Contributing
 
-1. Fork it (<https://gitlab.com/seanchristophergregory/grits/-/forks/new>)
+1. Fork it (<https://gitlab.com/skinnyjames/grits/-/forks/new>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
