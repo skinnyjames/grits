@@ -1,5 +1,3 @@
-image: "crystallang/crystal:latest"
-
 before_script:
   - shards install
 
@@ -7,7 +5,21 @@ cache:
   paths:
     - lib/
 
+spec:
+  stage: test
+  services:
+    - alias: gitea
+      name: skinnyjames/grits-gitea-fixture:latest
+  image: "skinnyjames/crystal-libgit2"
+  variables:
+    CI: 'true'
+  script:
+    - chmod 700 spec/helpers/gitea/gitea
+    - eval $(ssh-agent)
+    - crystal spec
+
 pages:
+  image: "crystallang/crystal:latest"
   stage: deploy
   script:
     - crystal docs -o public src/grits.cr
