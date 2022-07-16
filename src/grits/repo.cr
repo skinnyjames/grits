@@ -18,6 +18,23 @@ module Grits
       repo.free if repo
     end
 
+    def self.clone_mirror(
+      url : String,
+      path : String = Dir.cwd,
+      options : CloneOptions = CloneOptions.default,
+      &block
+    )
+      options.on_remote_create do |repo, name, url|
+        repo.mirror_remote("origin", url)
+      end
+
+      repo = clone(url, path, options)
+
+      yield repo
+    ensure
+      repo.free if repo
+    end
+
     def self.clone(
       url : String,
       local_path : String = Dir.cwd,

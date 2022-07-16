@@ -11,6 +11,11 @@ module Grits
     include Mixins::Pointable
     include Mixins::Wrapper
 
+    def self.default
+      Error.giterr LibGit.checkout_options_init(out opts, LibGit::GIT_CLONE_OPTIONS_VERSION), "Cant construct checkout options"
+      new(opts)
+    end
+
     wrap_value raw, version
     wrap_value raw, dir_mode, true
     wrap_value raw, file_mode, true

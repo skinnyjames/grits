@@ -44,9 +44,67 @@ module Grits
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
+      def config(&block)
+        Error.giterr LibGit.repository_config(out config, to_unsafe), "Cannot get config"
+        config = Config.new(config)
+        yield config
+      ensure
+        config.free if config
+      end
+
+      def checkout_head(options : CheckoutOptions? = CheckoutOptions.default)
+        Error.giterr LibGit.checkout_head(to_unsafe, options.to_unsafe_ptr), "Cannot checkout head"
+      end
+
+      def revparse_single(text : String)
+        Error.giterr LibGit.revparse_single(out obj, to_unsafe, text), "Cant revparse single"
+
+        Object.new(obj)
+      end
+
+      def mirror_remote(name : String, url : String)
+        remote = create_remote_with_fetchspec(name, url, "+refs/*:refs/*")
+        config do |c|
+          c.mirror(name)
+        end
+        remote
+      end
+
+      def create_remote(name : String, url : String)
+        Error.giterr LibGit.remote_create(out remote, to_unsafe, name, url), "Cannot create remote #{name}"
+        Remote.new(remote)
+      end
+
+      def create_remote_with_fetchspec(name : String, url : String, refspec : String)
+        Error.giterr LibGit.remote_create_with_fetchspec(out remote, to_unsafe, name, url, refspec), "Cannot create remote #{name}"
+        Remote.new(remote)
+      end
+
+      def create_remote(name : String, url : String, &block)
+        remote = create_remote(name, url)
+        yield remote
+      ensure
+        remote.free if remote
+      end
+
       def remote(name : String)
         Error.giterr LibGit.remote_lookup(out remote, to_unsafe, name), "Cannot fetch remote #{name}"
         Remote.new(remote)
+      end
+
+      def remotes
+        Error.giterr LibGit.remote_list(out strarray, to_unsafe), "Cannot fetch remotes"
+        arr = Array(Pointer(UInt8)).new(strarray.count.to_i, strarray.strings.value)
+        arr.map do |i|
+          remote(String.new(i))
+        end
+      end
+
+      def remotes(&block)
+        rems = remotes
+        yield rems
+      ensure
+        rems.each(&.free) if rems
       end
 
       def lookup_commit(oid : Oid)

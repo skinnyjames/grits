@@ -80,6 +80,11 @@ module Grits
       commit
     end
 
+    def self.lookup(repo : Repo, id : Oid)
+      Error.giterr LibGit.commit_lookup(out commit, repo.to_unsafe, id.to_unsafe), "Cannot lookup commit"
+      new(commit)
+    end
+
     def initialize(@raw : LibGit::Commit); end
 
     def message
@@ -97,6 +102,10 @@ module Grits
     def tree
       Error.giterr LibGit.commit_tree(out tree, to_unsafe), "can't find tree"
       Tree.new(tree)
+    end
+
+    def tree_id
+      Oid.new LibGit.commit_tree_id(to_unsafe)
     end
 
     def sha
