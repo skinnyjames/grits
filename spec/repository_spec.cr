@@ -62,6 +62,20 @@ describe Grits::Repo do
       end
     end
 
+    it "on remote create" do
+      url = "ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git"
+      remote = "http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git"
+
+      options = Grits::CloneOptions.default
+      options.on_remote_create do |repo, name, url|
+        Grits::Remote.create(repo, "foo", remote)
+      end
+
+      Fixture.clone_repo(url, Random::Secure.hex(3), options) do |repo|
+        repo.remote("foo").url.should eq(remote)
+      end
+    end
+
     describe "authentication" do
       it "via http" do
         options = Grits::CloneOptions.default

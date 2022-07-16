@@ -44,6 +44,11 @@ module Grits
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
+      def remote(name : String)
+        Error.giterr LibGit.remote_lookup(out remote, to_unsafe, name), "Cannot fetch remote #{name}"
+        Remote.new(remote)
+      end
+
       def lookup_commit(oid : Oid)
         lookup_commit oid.to_unsafe
       end
