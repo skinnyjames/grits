@@ -5,7 +5,7 @@ module Grits
 
     alias ProxyType = LibGit::ProxyT
 
-    def initialize(@raw : LibGit::ProxyOptions, @callbacks = Remote::Callbacks.init); end
+    def initialize(@raw : LibGit::ProxyOptions, @callbacks = Remotable::Callbacks.init); end
 
     def type=(t : ProxyType)
       to_unsafe.type = t
@@ -15,8 +15,8 @@ module Grits
       to_unsafe.url = url
     end
 
-    define_callback credentials_acquire, Remote::CredentialsAcquireCb, callbacks
-    define_callback certificate_check, Remote::CertificateCheckCb, callbacks
+    define_callback credentials_acquire, Remotable::CredentialsAcquireCb, callbacks
+    define_callback certificate_check, Remotable::CertificateCheckCb, callbacks
 
     protected def computed_unsafe
       unless @callbacks.empty?
@@ -38,10 +38,10 @@ module Grits
     include Mixins::Wrapper
     include Mixins::Callbacks
 
-    @callbacks : Grits::Remote::Callbacks
+    @callbacks : Grits::Remotable::Callbacks
 
     def initialize(@raw : LibGit::FetchOptions)
-      @callbacks = Remote::Callbacks.new to_unsafe.callbacks
+      @callbacks = Remotable::Callbacks.new to_unsafe.callbacks
     end
 
     def prune=(is_pruning : PruneOptions)
@@ -72,11 +72,11 @@ module Grits
       to_unsafe.custom_headers = strarr
     end
 
-    define_callback credentials_acquire, Remote::CredentialsAcquireCb, callbacks
-    define_callback certificate_check, Remote::CertificateCheckCb, callbacks
-    define_callback transfer_progress, Remote::IndexerProgressCb, callbacks
-    define_callback update_tips, Remote::UpdateTipsCb, callbacks
-    define_callback resolve_url, Remote::ResolveUrlCb, callbacks
+    define_callback credentials_acquire, Remotable::CredentialsAcquireCb, callbacks
+    define_callback certificate_check, Remotable::CertificateCheckCb, callbacks
+    define_callback transfer_progress, Remotable::IndexerProgressCb, callbacks
+    define_callback update_tips, Remotable::UpdateTipsCb, callbacks
+    define_callback resolve_url, Remotable::ResolveUrlCb, callbacks
 
     protected def computed_unsafe
       to_unsafe.callbacks = @callbacks.computed_unsafe

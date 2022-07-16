@@ -8,7 +8,7 @@ module Grits
 
     def self.open(path : String)
       Error.giterr LibGit.repository_open(out repo, path), "Couldn't open repository at #{path}"
-      new(repo, path)
+      new(repo)
     end
 
     def self.open(*args, &block)
@@ -25,7 +25,7 @@ module Grits
     )
       raw_options = options.computed_unsafe
       Error.giterr LibGit.clone(out repo, url, local_path, pointerof(raw_options)), "Can't clone repo"
-      new(repo, local_path)
+      new(repo)
     end
 
     def self.clone(*args, &block)
@@ -45,7 +45,7 @@ module Grits
     )
       FileUtils.mkdir_p(path, mode) if make && !Dir.exists?(path)
       Error.giterr LibGit.repository_init(out repo, path, bare_int), "Couldn't init repository at #{path}"
-      new(repo, path)
+      new(repo)
     end
 
     def self.init(path : String, **args, &block) : Void
@@ -55,7 +55,7 @@ module Grits
       repo.free if repo
     end
 
-    def initialize(@raw : LibGit::Repository, @path : String)
+    def initialize(@raw : LibGit::Repository)
     end
 
     def free

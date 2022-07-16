@@ -6,6 +6,7 @@ module Grits
   alias FileModeType = LibGit::FilemodeT
   alias CloneLocalType = LibGit::CloneLocalT
   alias RepositoryCreateCb = (String, Bool -> Grits::Repo) # not implemented
+  alias RemoteCreateCb = (Repo, String, String -> Grits::Remote)
   class CheckoutOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -98,6 +99,19 @@ module Grits
         cb = Box(RepositoryCreateCb).unbox(payload)
         grepo = cb.call(string_path, is_bare)
         repo.value = grepo.to_unsafe
+        0
+      end
+    end
+
+    def on_remote_create(&block : RemoteCreateCb)
+      to_unsafe.remote_cb_payload = Box.box(block)
+      to_unsafe.remote_cb = ->(remote : LibGit::Remote*, repo : LibGit::Repository, name : LibC::Char*, url : LibC::Char*, payload : Void*) do
+        rname = String.new(name)
+        rurl = String.new(url)
+        grepo = Repo.new(repo)
+        cb = Box(RemoteCreateCb).unbox(payload)
+        gremote = cb.call(grepo, rname, rurl)
+        remote.value = gremote.to_unsafe
         0
       end
     end

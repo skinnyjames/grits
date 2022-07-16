@@ -1,5 +1,5 @@
 module Grits
-  module Remote
+  module Remotable
     include Mixins::Pointable
 
     alias CredentialsAcquireCb = (Credential -> Int32)
