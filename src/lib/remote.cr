@@ -2,6 +2,13 @@
 lib LibGit
   type Remote = Void*
 
+  enum RemoteAutoTagOptionT
+    DownloadTagsUnspecified
+    DownloadTagsAuto
+    DownloadTagsNone
+    DownloadTagsAll
+  end
+
   struct RemoteHead
     local : LibC::Int
     oid : Oid
@@ -10,6 +17,7 @@ lib LibGit
     symref_target : LibC::Char*
   end
 
+  fun remote_update_tips = git_remote_update_tips(remote : Remote, callbacks : RemoteCallbacks, update_fetchhead : LibC::Int, download_tags : RemoteAutoTagOptionT, reflog_message : LibC::Char*) : LibC::Int
   fun remote_create = git_remote_create(out : Remote*, repo : Repository, name : LibC::Char*, url : LibC::Char*) : LibC::Int
   fun remote_create_with_fetchspec = git_remote_create_with_fetchspec(out : Remote*, repo : Repository, name : LibC::Char*, url : LibC::Char*, fetch : LibC::Char*) : LibC::Int
   fun remote_create_anonymous = git_remote_create_anonymous(out : Remote*, repo : Repository, url : LibC::Char*) : LibC::Int
@@ -32,6 +40,6 @@ lib LibGit
   fun remote_disconnect = git_remote_disconnect(remote : Remote)
   fun remote_free = git_remote_free(remote : Remote)
   fun remote_list = git_remote_list(out : Strarray*, repo : Repository) : LibC::Int
-  fun remote_fetch = git_remote_fetch(out : Remote*, refspecs : Strarray*, opts : FetchOptions*, reflog_message : LibC::Char*) : LibC::Int
+  fun remote_fetch = git_remote_fetch(out : Remote, refspecs : Strarray*, opts : FetchOptions*, reflog_message : LibC::Char*) : LibC::Int
   fun remote_init_callbacks = git_remote_init_callbacks(opts : RemoteCallbacks*, version : LibC::UInt) : LibC::Int
 end

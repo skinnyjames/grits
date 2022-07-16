@@ -40,6 +40,11 @@ module Grits
 
     @callbacks : Grits::Remotable::Callbacks
 
+    def self.default
+      Error.giterr LibGit.fetch_options_init(out fetch_opts, LibGit::GIT_CLONE_OPTIONS_VERSION), "Cant create fetch options"
+      new(fetch_opts)
+    end
+
     def initialize(@raw : LibGit::FetchOptions)
       @callbacks = Remotable::Callbacks.new to_unsafe.callbacks
     end

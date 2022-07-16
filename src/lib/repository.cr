@@ -1,7 +1,14 @@
 @[Link("git2")]
 lib LibGit
   type Repository = Void*
+  type Config = Void*
 
+
+  fun config_free = git_config_free(config : Config) : Void
+  fun config_set_bool = git_config_set_bool(config : Config, name : LibC::Char*, value : LibC::Int) : LibC::Int
+  fun revparse_single = git_revparse_single(out : Object*, repo : Repository, text : LibC::Char*) : LibC::Int
+  fun checkout_tree = git_checkout_tree(repo : Repository, treeish : Object, options : CheckoutOptions*) : LibC::Int
+  fun checkout_head = git_checkout_head(repository : Repository, options : CheckoutOptions*) : LibC::Int
   fun repository_open = git_repository_open(out : Repository*, path : LibC::Char*) : LibC::Int
   fun repository_discover = git_repository_discover(out : Buf*, start_path : LibC::Char*, across_fs : LibC::Int, ceiling_dirs : LibC::Char*) : LibC::Int
   fun repository_open_ext = git_repository_open_ext(out : Repository*, path : LibC::Char*, flags : LibC::UInt, ceiling_dirs : LibC::Char*) : LibC::Int
@@ -22,7 +29,7 @@ lib LibGit
   fun repository_workdir = git_repository_workdir(repo : Repository) : LibC::Char*
   # fun repository_set_workdir = git_repository_set_workdir(repo : Repository, workdir : LibC::Char*, update_gitlink : LibC::Int) : LibC::Int
   fun repository_is_bare = git_repository_is_bare(repo : Repository) : LibC::Int
-  # fun repository_config = git_repository_config(out : X_Config*, repo : Repository) : LibC::Int
+  fun repository_config = git_repository_config(out : Config*, repo : Repository) : LibC::Int
   # fun repository_config_snapshot = git_repository_config_snapshot(out : X_Config*, repo : Repository) : LibC::Int
   fun repository_odb = git_repository_odb(out : Odb*, repo : Repository) : LibC::Int
   # fun repository_refdb = git_repository_refdb(out : X_Refdb*, repo : Repository) : LibC::Int
@@ -33,7 +40,7 @@ lib LibGit
   # fun repository_fetchhead_foreach = git_repository_fetchhead_foreach(repo : Repository, callback : RepositoryFetchheadForeachCb, payload : Void*) : LibC::Int
   # fun repository_mergehead_foreach = git_repository_mergehead_foreach(repo : Repository, callback : RepositoryMergeheadForeachCb, payload : Void*) : LibC::Int
   # fun repository_hashfile = git_repository_hashfile(out : Oid*, repo : Repository, path : LibC::Char*, type : Otype, as_path : LibC::Char*) : LibC::Int
-  # fun repository_set_head = git_repository_set_head(repo : Repository, refname : LibC::Char*) : LibC::Int
+  fun repository_set_head = git_repository_set_head(repo : Repository, refname : LibC::Char*) : LibC::Int
   # fun repository_set_head_detached = git_repository_set_head_detached(repo : Repository, commitish : Oid*) : LibC::Int
   # fun repository_set_head_detached_from_annotated = git_repository_set_head_detached_from_annotated(repo : Repository, commitish : X_AnnotatedCommit) : LibC::Int
   fun repository_detach_head = git_repository_detach_head(repo : Repository) : LibC::Int
