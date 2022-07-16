@@ -28,6 +28,7 @@ module Grits
         repo.mirror_remote("origin", url)
       end
 
+      options.bare = true
       repo = clone(url, path, options)
 
       yield repo
