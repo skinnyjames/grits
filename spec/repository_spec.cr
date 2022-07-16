@@ -50,6 +50,18 @@ describe Grits::Repo do
       end
     end
 
+    it "on repository create" do
+      path = Random::Secure.hex(3)
+      options = Grits::CloneOptions.default
+      options.on_repository_create do |path, bare|
+        Grits::Repo.init("#{path}/hello", bare: bare)
+      end
+
+      Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git", path, options) do |repo|
+        repo.workdir.should contain("#{path}/hello")
+      end
+    end
+
     describe "authentication" do
       it "via http" do
         options = Grits::CloneOptions.default

@@ -72,7 +72,7 @@ lib LibGit
     Specified
   end
 
-  alias RepositoryCb = (Repository, LibC::Char*, LibC::Int, Void* -> LibC::Int)
+  alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
   alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, Void* -> LibC::Int)
   alias RemoteReadyCb = (Remote, LibC::Int, Void* -> LibC::Int)
   alias CheckoutNotifyCb = (CheckoutNotifyT, LibC::Char*, DiffFile*, DiffFile*, DiffFile*, Void* -> LibC::Int)

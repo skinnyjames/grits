@@ -5,7 +5,7 @@ module Grits
   alias PerformanceDataCb = (Wrappers::PerformanceData -> Void)
   alias FileModeType = LibGit::FilemodeT
   alias CloneLocalType = LibGit::CloneLocalT
-  alias RepositoryCreateCb = (Repo, String, Bool -> Bool?) # not implemented
+  alias RepositoryCreateCb = (String, Bool -> Grits::Repo) # not implemented
   class CheckoutOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -64,6 +64,7 @@ module Grits
     end
   end
 
+  # todo: repository_callback and remote_callback
   class CloneOptions
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -87,6 +88,18 @@ module Grits
 
     def local=(type : CloneLocalType)
       to_unsafe.local = type
+    end
+
+    def on_repository_create(&block : RepositoryCreateCb)
+      to_unsafe.repository_cb_payload = Box.box(block)
+      to_unsafe.repository_cb = ->(repo : LibGit::Repository*, path : LibC::Char*, bare : LibC::Int, payload : Void*) do
+        string_path = String.new(path)
+        is_bare = bare.zero? ? false : true
+        cb = Box(RepositoryCreateCb).unbox(payload)
+        grepo = cb.call(string_path, is_bare)
+        repo.value = grepo.to_unsafe
+        0
+      end
     end
 
     def checkout_options
