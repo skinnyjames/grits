@@ -48,12 +48,24 @@ module Grits
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
-      def config(&block)
-        Error.giterr LibGit.repository_config(out config, to_unsafe), "Cannot get config"
-        config = Config.new(config)
-        yield config
-      ensure
-        config.free if config
+      def config(snapshot : Bool? = false, &block)
+        if snapshot
+          begin
+            Error.giterr LibGit.repository_config_snapshot(out config_snapshot, to_unsafe), "Cannot get config"
+            config = Config.new(config_snapshot)
+            yield config
+          ensure
+            config.free if config
+          end
+        else
+          begin
+              Error.giterr LibGit.repository_config(out cfg, to_unsafe), "Cannot get config"
+              config = Config.new(cfg)
+              yield config
+            ensure
+              config.free if config
+          end
+        end
       end
 
       def checkout_head(options : CheckoutOptions? = CheckoutOptions.default)

@@ -33,6 +33,27 @@ describe Grits::Repo do
     end
   end
 
+  describe "#config" do
+    it "returns a snapshot" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.config(snapshot: true) do |config|
+          expect_raises(Grits::Error::Git, /readonly/) do
+            config.set_bool("remote.foo.mirror", true)
+          end
+        end
+      end
+    end
+
+    it "returns a config" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.config do |config|
+          config.set_bool("remote.foo.mirror", true)
+          config.get_bool("remote.foo.mirror").should eq(true)
+        end
+      end
+    end
+  end
+
   describe "#open" do
     it "opens a repo that already exists" do
       Fixture.init_repo(make: true) do |init, path|

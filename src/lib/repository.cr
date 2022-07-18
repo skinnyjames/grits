@@ -5,7 +5,9 @@ lib LibGit
 
 
   fun config_free = git_config_free(config : Config) : Void
+  fun repository_config_snapshot = git_repository_config_snapshot(out : Config*, repo : Repository) : LibC::Int
   fun config_set_bool = git_config_set_bool(config : Config, name : LibC::Char*, value : LibC::Int) : LibC::Int
+  fun config_get_bool = git_config_get_bool(out : LibC::Int*, cfg : Config, name : LibC::Char*) : LibC::Int
   fun revparse_single = git_revparse_single(out : Object*, repo : Repository, text : LibC::Char*) : LibC::Int
   fun checkout_tree = git_checkout_tree(repo : Repository, treeish : Object, options : CheckoutOptions*) : LibC::Int
   fun checkout_head = git_checkout_head(repository : Repository, options : CheckoutOptions*) : LibC::Int
