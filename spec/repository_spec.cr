@@ -54,6 +54,15 @@ describe Grits::Repo do
     end
   end
 
+  describe "#discover" do
+    it "walks parent directories" do
+      Fixture.init_repo(make: true) do |repo, path|
+        FileUtils.mkdir_p("#{path}/foo/bar/baz/buzz", 511)
+        repo.discover("#{path}/foo/bar/baz/buzz").should eq("#{path}/.git/")
+      end
+    end
+  end
+
   describe "#open" do
     it "opens a repo that already exists" do
       Fixture.init_repo(make: true) do |init, path|

@@ -48,6 +48,15 @@ module Grits
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
+      def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
+        across = across_fs ? 1 : 0
+        buffer = Buffer.create
+        Error.giterr LibGit.repository_discover(buffer.to_unsafe_ptr, start, across, cieling_dirs), "Cannot discover repo"
+        buffer.to_s
+      ensure
+        buffer.free if buffer
+      end
+
       def config(snapshot : Bool? = false, &block)
         if snapshot
           begin
