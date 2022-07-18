@@ -1,6 +1,9 @@
 module Grits
   module Mixins
     module Repo
+
+      alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
+
       def bare?
         LibGit.repository_is_bare(to_unsafe) == 1
       end
@@ -75,6 +78,23 @@ module Grits
               config.free if config
           end
         end
+      end
+
+      def each_fetchhead(&block : EachFetchHeadCb) : Void
+        payload = Box.box(block)
+        callback : LibGit::RepositoryFetchheadForeachCb = ->(ref : LibC::Char*, remote_url : LibC::Char*, git_oid : LibGit::Oid*, is_merge : LibC::UInt, payload : Void*) do
+          cb = Box(EachFetchHeadCb).unbox(payload)
+          ref_name = String.new(ref)
+          url = String.new(remote_url)
+          oid = Oid.new(git_oid)
+          merge = is_merge.positive?
+
+          b = cb.call(ref_name, url, oid, merge)
+
+          b.nil? ? 0 : (b ? 0 : 1)
+        end
+
+        Error.giterr LibGit.repository_fetchhead_foreach(to_unsafe, callback, payload), "Cannot iterate over fetchhead"
       end
 
       def checkout_head(options : CheckoutOptions? = CheckoutOptions.default)

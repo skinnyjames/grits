@@ -3,6 +3,7 @@ lib LibGit
   type Repository = Void*
   type Config = Void*
 
+  alias RepositoryFetchheadForeachCb = (LibC::Char*, LibC::Char*, LibGit::Oid*, LibC::UInt, Void* -> LibC::Int)
 
   fun config_free = git_config_free(config : Config) : Void
   fun repository_config_snapshot = git_repository_config_snapshot(out : Config*, repo : Repository) : LibC::Int
@@ -41,7 +42,7 @@ lib LibGit
   # fun repository_message = git_repository_message(out : Buf*, repo : Repository) : LibC::Int
   # fun repository_message_remove = git_repository_message_remove(repo : Repository) : LibC::Int
   # fun repository_state_cleanup = git_repository_state_cleanup(repo : Repository) : LibC::Int
-  # fun repository_fetchhead_foreach = git_repository_fetchhead_foreach(repo : Repository, callback : RepositoryFetchheadForeachCb, payload : Void*) : LibC::Int
+  fun repository_fetchhead_foreach = git_repository_fetchhead_foreach(repo : Repository, callback : RepositoryFetchheadForeachCb, payload : Void*) : LibC::Int
   # fun repository_mergehead_foreach = git_repository_mergehead_foreach(repo : Repository, callback : RepositoryMergeheadForeachCb, payload : Void*) : LibC::Int
   # fun repository_hashfile = git_repository_hashfile(out : Oid*, repo : Repository, path : LibC::Char*, type : Otype, as_path : LibC::Char*) : LibC::Int
   fun repository_set_head = git_repository_set_head(repo : Repository, refname : LibC::Char*) : LibC::Int

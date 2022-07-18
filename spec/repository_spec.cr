@@ -54,6 +54,20 @@ describe Grits::Repo do
     end
   end
 
+  it "#each_fetchhead" do
+    Fixture.init_repo(make: true) do |repo|
+      repo.create_remote("origin", "http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git")
+      repo.remote("origin").fetch
+
+      repo.each_fetchhead do |ref, url, oid, merge|
+        puts "hello"
+        ref.should eq("refs/heads/main")
+        url.should eq("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git")
+        merge.should eq(false)
+      end
+    end
+  end
+
   describe "#discover" do
     it "walks parent directories" do
       Fixture.init_repo(make: true) do |repo, path|
