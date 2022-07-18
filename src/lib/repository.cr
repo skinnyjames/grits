@@ -29,6 +29,9 @@ lib LibGit
   fun repository_head = git_repository_head(out : Reference*, repo : Repository) : LibC::Int
   fun repository_head_detached = git_repository_head_detached(repo : Repository) : LibC::Int
   fun repository_head_unborn = git_repository_head_unborn(repo : Repository) : LibC::Int
+  fun repository_head_for_worktree = git_repository_head_for_worktree(out : Reference*, repo : Repository, name : LibC::Char*) : LibC::Int
+  fun repository_head_detached_for_worktree = git_repository_head_detached_for_worktree(repo : Repository, name : LibC::Char*) : LibC::Int
+
   fun repository_is_empty = git_repository_is_empty(repo : Repository) : LibC::Int
   fun repository_path = git_repository_path(repo : Repository) : LibC::Char*
   fun repository_workdir = git_repository_workdir(repo : Repository) : LibC::Char*

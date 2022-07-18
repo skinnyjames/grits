@@ -2,7 +2,11 @@ module Grits
   module Error
     def self.giterr(status, errstr : String)
       return if status == LibGit::ErrorCode::Ok.value
-      raise Git.new(status, errstr)
+      begin
+        raise Git.new(status, errstr)
+      ensure
+        LibGit.err_clear
+      end
     end
 
     class Generic < Exception; end
