@@ -56,6 +56,12 @@ module Grits
         val.null? ? nil : String.new(val)
       end
 
+      def hash_file(path : String, type : Object::Type, as_path : String? = nil)
+        Error.giterr LibGit.repository_hashfile(out oid, to_unsafe, path, type, as_path), "Cannot hash file"
+        ptr = pointerof(oid)
+        Oid.new(ptr)
+      end
+
       def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
         across = across_fs ? 1 : 0
         buffer = Buffer.create

@@ -33,6 +33,17 @@ describe Grits::Repo do
     end
   end
 
+  describe "hashfile" do
+    it "returns an oid" do
+      Fixture.init_repo(make: true) do |repo, path|
+        Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
+
+        oid = repo.hash_file("#{repo.workdir}/something.text", Grits::Object::Type::Commit)
+        oid.should be_a(Grits::Oid)
+      end
+    end
+  end
+
   describe "#config" do
     it "returns a snapshot" do
       Fixture.init_repo(make: true) do |repo, path|
@@ -60,7 +71,6 @@ describe Grits::Repo do
       repo.remote("origin").fetch
 
       repo.each_fetchhead do |ref, url, oid, merge|
-        puts "hello"
         ref.should eq("refs/heads/main")
         url.should eq("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git")
         merge.should eq(false)
