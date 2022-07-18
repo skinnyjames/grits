@@ -15,6 +15,10 @@ module Grits
         String.new(working_dir)
       end
 
+      def commondir
+        String.new(LibGit.repository_commondir(to_unsafe))
+      end
+
       def path
         String.new LibGit.repository_path(to_unsafe)
       end

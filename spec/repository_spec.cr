@@ -21,6 +21,16 @@ describe Grits::Repo do
         end
       end
     end
+
+    describe "#commondir" do
+      it "should be the gitdir" do
+        Fixture.init_repo(make: true) do |repo, path|
+          repo.commondir.should eq("#{path}/.git/")
+        end
+      end
+
+      pending "should be the gitdir when a worktree"
+    end
   end
 
   describe "#open" do

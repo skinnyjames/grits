@@ -9,6 +9,8 @@ lib LibGit
   fun revparse_single = git_revparse_single(out : Object*, repo : Repository, text : LibC::Char*) : LibC::Int
   fun checkout_tree = git_checkout_tree(repo : Repository, treeish : Object, options : CheckoutOptions*) : LibC::Int
   fun checkout_head = git_checkout_head(repository : Repository, options : CheckoutOptions*) : LibC::Int
+
+  fun repository_commondir = git_repository_commondir(repo : Repository) : LibC::Char*
   fun repository_open = git_repository_open(out : Repository*, path : LibC::Char*) : LibC::Int
   fun repository_discover = git_repository_discover(out : Buf*, start_path : LibC::Char*, across_fs : LibC::Int, ceiling_dirs : LibC::Char*) : LibC::Int
   fun repository_open_ext = git_repository_open_ext(out : Repository*, path : LibC::Char*, flags : LibC::UInt, ceiling_dirs : LibC::Char*) : LibC::Int
