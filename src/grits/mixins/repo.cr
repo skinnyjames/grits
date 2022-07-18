@@ -51,6 +51,11 @@ module Grits
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
+      def namespace : String?
+        val = LibGit.repository_get_namespace(to_unsafe)
+        val.null? ? nil : String.new(val)
+      end
+
       def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
         across = across_fs ? 1 : 0
         buffer = Buffer.create
