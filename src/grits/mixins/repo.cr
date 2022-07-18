@@ -47,11 +47,16 @@ module Grits
         Error.giterr LibGit.repository_detach_head(to_unsafe)
       end
 
-      # TODO: error_last returns invalid memory access
-      # def worktree_head(worktree : String) : Reference
-      #   Error.giterr LibGit.repository_head_for_worktree(out ref, to_unsafe, worktree), "Can't fetch head for worktree"
-      #   return Reference.new(ref)
-      # end
+      def worktree?
+        LibGit.repository_is_worktree(to_unsafe).positive?
+      end
+
+      def worktree_head(worktree : String) : Reference?
+        return nil unless worktree?
+
+        Error.giterr LibGit.repository_head_for_worktree(out ref, to_unsafe, worktree), "Can't fetch head for worktree"
+        return Reference.new(ref)
+      end
 
       def worktree_head_detached?(worktree : String)
         LibGit.repository_head_detached_for_worktree(to_unsafe, worktree).positive?

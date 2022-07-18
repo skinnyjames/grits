@@ -8,6 +8,7 @@ describe Grits::Repo do
         repo.head_unborn?.should eq(true)
         repo.path.should eq("#{path}/.git/")
         repo.workdir.should eq("#{path}/")
+        repo.worktree?.should eq(false)
       end
     end
 
