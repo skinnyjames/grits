@@ -39,6 +39,4 @@ lib LibGit
     SubmoduleIgnoreDirty       =  3
     SubmoduleIgnoreAll         =  4
   end
-
-  fun libgit2_init = git_libgit2_init : LibC::Int
 end

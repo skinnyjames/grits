@@ -9,6 +9,7 @@ lib LibGit
     Reverse     = 4
   end
 
+  fun revparse_single = git_revparse_single(out : Object*, repo : Repository, text : LibC::Char*) : LibC::Int
   fun revwalk_new = git_revwalk_new(out : Revwalk*, repo : Repository) : LibC::Int
   fun revwalk_reset = git_revwalk_reset(walker : Revwalk)
   fun revwalk_push = git_revwalk_push(walk : Revwalk, id : Oid*) : LibC::Int
