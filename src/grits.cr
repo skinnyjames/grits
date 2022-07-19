@@ -1,7 +1,7 @@
 require "./lib/*"
 require "./grits/mixins/*"
 require "./grits/wrappers/*"
-require "./grits/remote/*"
+require "./grits/remotable/*"
 require "./grits/*"
 
 module Grits

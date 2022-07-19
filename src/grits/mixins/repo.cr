@@ -1,7 +1,6 @@
 module Grits
   module Mixins
     module Repo
-
       alias OpenTypes = LibGit::RepositoryTypes
       alias Item = LibGit::RepositoryItemT
       alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
