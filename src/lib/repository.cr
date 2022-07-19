@@ -21,6 +21,15 @@ lib LibGit
     Last
   end
 
+  @[Flags]
+  enum RepositoryTypes
+    NoSearch
+    AcrossFs
+    Bare
+    NoDotGit
+    FromEnv
+  end
+
   alias RepositoryFetchheadForeachCb = (LibC::Char*, LibC::Char*, LibGit::Oid*, LibC::UInt, Void* -> LibC::Int)
 
   fun config_free = git_config_free(config : Config) : Void

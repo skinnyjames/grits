@@ -52,6 +52,22 @@ module Grits
       repo.free if repo
     end
 
+    def self.open_ext(path : String, flags : Array(OpenTypes) = [OpenFlags::None], cieling_dirs : String = "")
+      flag_value = flags.map(&.value).reduce do |memo, val|
+        memo | val
+      end
+
+      Error.giterr LibGit.repository_open_ext(out repo, path, flag_value, cieling_dirs), "Can't open repo"
+      new(repo)
+    end
+
+    def self.open_ext(path : String, **opts, &block)
+      repo = open_ext(opts)
+      yield repo
+    ensure
+      repo.free
+    end
+
     def self.clone_mirror(
       url : String,
       path : String = Dir.cwd,
