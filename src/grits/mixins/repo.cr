@@ -209,6 +209,13 @@ module Grits
         str
       end
 
+      def object_database(&block)
+        db = Odb.from_repo(self)
+        yield db
+      ensure
+        db.free if db
+      end
+
       protected def lookup_commit(oid_ptr : Pointer(LibGit::Oid))
         Error.giterr LibGit.commit_lookup(out commit, to_unsafe, oid_ptr), "Cannot load commit"
         Commit.new(commit)

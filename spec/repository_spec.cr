@@ -53,6 +53,14 @@ describe Grits::Repo do
     end
   end
 
+  it "returns an object database" do
+    Fixture.init_repo(make: true) do |repo, path|
+      repo.object_database do |odb|
+        odb.should be_a(Grits::Odb)
+      end
+    end
+  end
+
   describe "#config" do
     it "returns a snapshot" do
       Fixture.init_repo(make: true) do |repo, path|
