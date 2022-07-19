@@ -2,6 +2,7 @@ module Grits
   module Mixins
     module Repo
 
+      alias Item = LibGit::RepositoryItemT
       alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
 
       def bare?
@@ -198,6 +199,14 @@ module Grits
       def last_commit
         Error.giterr LibGit.reference_name_to_id(out oid, to_unsafe, "HEAD"), "couldn't reference id"
         lookup_commit Oid.new(pointerof(oid))
+      end
+
+      def item_path(item : Item)
+        b = Buffer.create
+        Error.giterr LibGit.repository_item_path(b.to_unsafe_ptr, to_unsafe, item), "Can't find item path"
+        str = b.to_s
+        b.free
+        str
       end
 
       protected def lookup_commit(oid_ptr : Pointer(LibGit::Oid))

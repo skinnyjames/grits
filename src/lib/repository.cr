@@ -3,6 +3,24 @@ lib LibGit
   type Repository = Void*
   type Config = Void*
 
+  enum RepositoryItemT
+    Gitdir
+    Workdir
+    Commondir
+    Index
+    Objects
+    Refs
+    PackedRefs
+    Remotes
+    Config
+    Info
+    Hooks
+    Logs
+    Modules
+    Worktrees
+    Last
+  end
+
   alias RepositoryFetchheadForeachCb = (LibC::Char*, LibC::Char*, LibGit::Oid*, LibC::UInt, Void* -> LibC::Int)
 
   fun config_free = git_config_free(config : Config) : Void
@@ -13,6 +31,8 @@ lib LibGit
   fun checkout_tree = git_checkout_tree(repo : Repository, treeish : Object, options : CheckoutOptions*) : LibC::Int
   fun checkout_head = git_checkout_head(repository : Repository, options : CheckoutOptions*) : LibC::Int
 
+
+  fun repository_item_path = git_repository_item_path(buf : Buf*, repo : Repository, item : RepositoryItemT) : LibC::Int
   fun repository_commondir = git_repository_commondir(repo : Repository) : LibC::Char*
   fun repository_open = git_repository_open(out : Repository*, path : LibC::Char*) : LibC::Int
   fun repository_discover = git_repository_discover(out : Buf*, start_path : LibC::Char*, across_fs : LibC::Int, ceiling_dirs : LibC::Char*) : LibC::Int

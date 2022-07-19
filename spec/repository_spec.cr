@@ -45,6 +45,14 @@ describe Grits::Repo do
     end
   end
 
+  describe "#item_path" do
+    it "returns the workdir" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.item_path(Grits::Repo::Item::Workdir).should eq("#{path}/")
+      end
+    end
+  end
+
   describe "#config" do
     it "returns a snapshot" do
       Fixture.init_repo(make: true) do |repo, path|
