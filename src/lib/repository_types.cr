@@ -5,7 +5,6 @@ lib LibGit
 
   alias GenericPayload = Void*
 
-  type Credential = Void*
   type Certificate = Void*
   type Transport = Void*
 
@@ -186,8 +185,4 @@ lib LibGit
 
   fun checkout_options_init = git_checkout_options_init(options : CheckoutOptions*, version : LibC::UInt) : LibC::Int
   fun fetch_options_init = git_fetch_options_init(options : FetchOptions*, version : LibC::UInt) : LibC::Int
-  fun credential_ssh_key_new = git_credential_ssh_key_new(out : Credential*, username : LibC::Char*, publickey : LibC::Char*, privatekey : LibC::Char*, passphrase : LibC::Char*) : LibC::Int
-  fun credential_ssh_key_memory_new = git_credential_ssh_key_memory_new(out : Credential*, username : LibC::Char*, publickey : LibC::Char*, privatekey : LibC::Char*, passphrase : LibC::Char*) : LibC::Int
-  fun credential_ssh_key_from_agent = git_credential_ssh_key_from_agent(out : Credential*, username : LibC::Char*) : LibC::Int
-  fun credential_userpass_plaintext_new = git_credential_userpass_plaintext_new(out : Credential*, username : LibC::Char*, password : LibC::Char*) : LibC::Int
 end
