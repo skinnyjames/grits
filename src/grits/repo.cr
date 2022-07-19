@@ -40,6 +40,18 @@ module Grits
       repo.free if repo
     end
 
+    def self.open_bare(path : String)
+      Error.giterr LibGit.repository_open_bare(out repo, path), "Couldn't open bare repository at #{path}"
+      new(repo)
+    end
+
+    def self.open_bare(path : String)
+      repo = open_bare(path)
+      yield repo
+    ensure
+      repo.free if repo
+    end
+
     def self.clone_mirror(
       url : String,
       path : String = Dir.cwd,

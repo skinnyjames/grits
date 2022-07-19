@@ -114,6 +114,14 @@ describe Grits::Repo do
         repo.head_unborn?.should eq(init.head_unborn?)
       end
     end
+
+    it "opens a bare repo" do
+      Fixture.init_repo(make: true, bare: true) do |init, path|
+        repo = Grits::Repo.open_bare(path)
+        init.bare?.should eq(true)
+        repo.bare?.should eq(true)
+      end
+    end
   end
 
   describe "::init_ext" do
