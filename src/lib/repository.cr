@@ -25,7 +25,7 @@ lib LibGit
   fun clone = git_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, options : CloneOptions*) : LibC::Int
   fun repository_init_options_init = git_repository_init_options_init(opts : RepositoryInitOptions*, version : LibC::UInt) : LibC::Int
 
-  # fun repository_init_ext = git_repository_init_ext(out : Repository*, repo_path : LibC::Char*, opts : RepositoryInitOptions*) : LibC::Int
+  fun repository_init_ext = git_repository_init_ext(out : Repository*, repo_path : LibC::Char*, opts : RepositoryInitOptions*) : LibC::Int
   fun repository_head = git_repository_head(out : Reference*, repo : Repository) : LibC::Int
   fun repository_head_detached = git_repository_head_detached(repo : Repository) : LibC::Int
   fun repository_head_unborn = git_repository_head_unborn(repo : Repository) : LibC::Int

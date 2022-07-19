@@ -100,6 +100,17 @@ describe Grits::Repo do
     end
   end
 
+  describe "::init_ext" do
+    it "initializes with options" do
+      options = Grits::RepoInitOptions.default
+      options.origin_url = "https://foo.bar.git"
+      Fixture.init_ext_repo(make: true, options: options) do |repo, path|
+        repo.empty?.should eq(true)
+        repo.remote("origin").url.should eq("https://foo.bar.git")
+      end
+    end
+  end
+
   describe "#clone" do
     it "clones a repo with default settings" do
       Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3)) do |repo|
