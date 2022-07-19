@@ -4,8 +4,18 @@ module Grits
 
     def initialize(@raw : LibGit::Config); end
 
+    def set_bool(name : String, value : Bool)
+      int = value ? 1 : 0
+      Error.giterr LibGit.config_set_bool(to_unsafe, name, int), "Cannot set value of #{name}"
+    end
+
+    def get_bool(name : String)
+      Error.giterr LibGit.config_get_bool(out int, to_unsafe, name), "Cannot get value of #{name}"
+      int != 0
+    end
+
     def mirror(name : String)
-      Error.giterr LibGit.config_set_bool(to_unsafe, "remote.#{name}.mirror", 1), "Cannot set mirror in config"
+      set_bool("remote.#{name}.mirror", true)
     end
 
     def free

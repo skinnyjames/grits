@@ -1,6 +1,28 @@
 require "file_utils"
 
 module Grits
+  class RepoInitOptions
+    include Mixins::Wrapper
+    include Mixins::Pointable
+
+    def self.default
+      Error.giterr LibGit.repository_init_options_init(out options, 1), "Couldn't init options"
+      new(options)
+    end
+
+    wrap_value raw, version, true
+    wrap_value raw, flags, true
+    wrap_value raw, mode, true
+
+    wrap_value raw, workdir_path, true
+    wrap_value raw, description, true
+    wrap_value raw, template_path, true
+    wrap_value raw, initial_head, true
+    wrap_value raw, origin_url, true
+
+    def initialize(@raw : LibGit::RepositoryInitOptions); end
+  end
+
   class Repo
     include Mixins::Pointable
     include Mixins::Wrapper
@@ -16,6 +38,34 @@ module Grits
       yield repo
     ensure
       repo.free if repo
+    end
+
+    def self.open_bare(path : String)
+      Error.giterr LibGit.repository_open_bare(out repo, path), "Couldn't open bare repository at #{path}"
+      new(repo)
+    end
+
+    def self.open_bare(path : String)
+      repo = open_bare(path)
+      yield repo
+    ensure
+      repo.free if repo
+    end
+
+    def self.open_ext(path : String, flags : Array(OpenTypes) = [OpenFlags::None], cieling_dirs : String = "")
+      flag_value = flags.map(&.value).reduce do |memo, val|
+        memo | val
+      end
+
+      Error.giterr LibGit.repository_open_ext(out repo, path, flag_value, cieling_dirs), "Can't open repo"
+      new(repo)
+    end
+
+    def self.open_ext(path : String, **opts, &block)
+      repo = open_ext(opts)
+      yield repo
+    ensure
+      repo.free
     end
 
     def self.clone_mirror(
@@ -68,6 +118,29 @@ module Grits
 
     def self.init(path : String, **args, &block) : Void
       repo = init(path, **args)
+      yield repo
+    ensure
+      repo.free if repo
+    end
+
+    def self.init_ext(
+      path : String,
+      *,
+      make : Bool? = false,
+      mode : Int? = 511,
+      options : RepoInitOptions = RepoInitOptions.default
+    )
+      FileUtils.mkdir_p(path, mode) if make && !Dir.exists?(path)
+      Error.giterr LibGit.repository_init_ext(out repo, path, options.to_unsafe_ptr), "Couldn't init repository at #{path}"
+      new(repo)
+    end
+
+    def self.init_ext(
+      path : String,
+      **args,
+      &block
+    )
+      repo = init_ext(path, **args)
       yield repo
     ensure
       repo.free if repo

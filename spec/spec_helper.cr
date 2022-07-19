@@ -93,4 +93,15 @@ class Fixture
       FileUtils.rm_rf(path)
     end
   end
+
+  def self.init_ext_repo(**args, &block)
+    path = "#{__DIR__}/tmp/#{Random::Secure.hex(5)}"
+    begin
+      Grits::Repo.init_ext(path, **args) do |repo|
+        yield repo, path
+      end
+      ensure
+      FileUtils.rm_rf(path)
+    end
+  end
 end

@@ -1,6 +1,11 @@
 module Grits
   module Mixins
     module Repo
+
+      alias OpenTypes = LibGit::RepositoryTypes
+      alias Item = LibGit::RepositoryItemT
+      alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
+
       def bare?
         LibGit.repository_is_bare(to_unsafe) == 1
       end
@@ -13,6 +18,10 @@ module Grits
         working_dir = LibGit.repository_workdir(to_unsafe)
         raise Error::Generic.new("Cannot get the working directory, is the repository bare?") if working_dir.null?
         String.new(working_dir)
+      end
+
+      def commondir
+        String.new(LibGit.repository_commondir(to_unsafe))
       end
 
       def path
@@ -40,16 +49,80 @@ module Grits
         Error.giterr LibGit.repository_detach_head(to_unsafe)
       end
 
+      def worktree?
+        LibGit.repository_is_worktree(to_unsafe).positive?
+      end
+
+      def worktree_head(worktree : String) : Reference?
+        return nil unless worktree?
+
+        Error.giterr LibGit.repository_head_for_worktree(out ref, to_unsafe, worktree), "Can't fetch head for worktree"
+        return Reference.new(ref)
+      end
+
+      def worktree_head_detached?(worktree : String)
+        LibGit.repository_head_detached_for_worktree(to_unsafe, worktree).positive?
+      end
+
       def shallow? : Bool
         LibGit.repository_is_shallow(to_unsafe) == 1
       end
 
-      def config(&block)
-        Error.giterr LibGit.repository_config(out config, to_unsafe), "Cannot get config"
-        config = Config.new(config)
-        yield config
+      def namespace : String?
+        val = LibGit.repository_get_namespace(to_unsafe)
+        val.null? ? nil : String.new(val)
+      end
+
+      def hash_file(path : String, type : Object::Type, as_path : String? = nil)
+        Error.giterr LibGit.repository_hashfile(out oid, to_unsafe, path, type, as_path), "Cannot hash file"
+        ptr = pointerof(oid)
+        Oid.new(ptr)
+      end
+
+      def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
+        across = across_fs ? 1 : 0
+        buffer = Buffer.create
+        Error.giterr LibGit.repository_discover(buffer.to_unsafe_ptr, start, across, cieling_dirs), "Cannot discover repo"
+        buffer.to_s
       ensure
-        config.free if config
+        buffer.free if buffer
+      end
+
+      def config(snapshot : Bool? = false, &block)
+        if snapshot
+          begin
+            Error.giterr LibGit.repository_config_snapshot(out config_snapshot, to_unsafe), "Cannot get config"
+            config = Config.new(config_snapshot)
+            yield config
+          ensure
+            config.free if config
+          end
+        else
+          begin
+              Error.giterr LibGit.repository_config(out cfg, to_unsafe), "Cannot get config"
+              config = Config.new(cfg)
+              yield config
+            ensure
+              config.free if config
+          end
+        end
+      end
+
+      def each_fetchhead(&block : EachFetchHeadCb) : Void
+        payload = Box.box(block)
+        callback : LibGit::RepositoryFetchheadForeachCb = ->(ref : LibC::Char*, remote_url : LibC::Char*, git_oid : LibGit::Oid*, is_merge : LibC::UInt, payload : Void*) do
+          cb = Box(EachFetchHeadCb).unbox(payload)
+          ref_name = String.new(ref)
+          url = String.new(remote_url)
+          oid = Oid.new(git_oid)
+          merge = is_merge.positive?
+
+          b = cb.call(ref_name, url, oid, merge)
+
+          b.nil? ? 0 : (b ? 0 : 1)
+        end
+
+        Error.giterr LibGit.repository_fetchhead_foreach(to_unsafe, callback, payload), "Cannot iterate over fetchhead"
       end
 
       def checkout_head(options : CheckoutOptions? = CheckoutOptions.default)
@@ -127,6 +200,21 @@ module Grits
       def last_commit
         Error.giterr LibGit.reference_name_to_id(out oid, to_unsafe, "HEAD"), "couldn't reference id"
         lookup_commit Oid.new(pointerof(oid))
+      end
+
+      def item_path(item : Item)
+        b = Buffer.create
+        Error.giterr LibGit.repository_item_path(b.to_unsafe_ptr, to_unsafe, item), "Can't find item path"
+        str = b.to_s
+        b.free
+        str
+      end
+
+      def object_database(&block)
+        db = Odb.from_repo(self)
+        yield db
+      ensure
+        db.free if db
       end
 
       protected def lookup_commit(oid_ptr : Pointer(LibGit::Oid))

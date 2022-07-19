@@ -8,6 +8,7 @@ describe Grits::Repo do
         repo.head_unborn?.should eq(true)
         repo.path.should eq("#{path}/.git/")
         repo.workdir.should eq("#{path}/")
+        repo.worktree?.should eq(false)
       end
     end
 
@@ -21,6 +22,86 @@ describe Grits::Repo do
         end
       end
     end
+
+    describe "#commondir" do
+      it "should be the gitdir" do
+        Fixture.init_repo(make: true) do |repo, path|
+          repo.commondir.should eq("#{path}/.git/")
+        end
+      end
+
+      pending "should be the gitdir when a worktree"
+    end
+  end
+
+  describe "hashfile" do
+    it "returns an oid" do
+      Fixture.init_repo(make: true) do |repo, path|
+        Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
+
+        oid = repo.hash_file("#{repo.workdir}/something.text", Grits::Object::Type::Commit)
+        oid.should be_a(Grits::Oid)
+      end
+    end
+  end
+
+  describe "#item_path" do
+    it "returns the workdir" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.item_path(Grits::Repo::Item::Workdir).should eq("#{path}/")
+      end
+    end
+  end
+
+  it "returns an object database" do
+    Fixture.init_repo(make: true) do |repo, path|
+      repo.object_database do |odb|
+        odb.should be_a(Grits::Odb)
+      end
+    end
+  end
+
+  describe "#config" do
+    it "returns a snapshot" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.config(snapshot: true) do |config|
+          expect_raises(Grits::Error::Git, /readonly/) do
+            config.set_bool("remote.foo.mirror", true)
+          end
+        end
+      end
+    end
+
+    it "returns a config" do
+      Fixture.init_repo(make: true) do |repo, path|
+        repo.config do |config|
+          config.set_bool("remote.foo.mirror", true)
+          config.get_bool("remote.foo.mirror").should eq(true)
+        end
+      end
+    end
+  end
+
+  it "#each_fetchhead" do
+    Fixture.init_repo(make: true) do |repo|
+      repo.create_remote("origin", "http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git")
+      repo.remote("origin").fetch
+
+      repo.each_fetchhead do |ref, url, oid, merge|
+        ref.should eq("refs/heads/main")
+        url.should eq("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git")
+        merge.should eq(false)
+      end
+    end
+  end
+
+  describe "#discover" do
+    it "walks parent directories" do
+      Fixture.init_repo(make: true) do |repo, path|
+        FileUtils.mkdir_p("#{path}/foo/bar/baz/buzz", 511)
+        repo.discover("#{path}/foo/bar/baz/buzz").should eq("#{path}/.git/")
+      end
+    end
   end
 
   describe "#open" do
@@ -31,6 +112,34 @@ describe Grits::Repo do
         repo.bare?.should eq(init.bare?)
         repo.empty?.should eq(init.empty?)
         repo.head_unborn?.should eq(init.head_unborn?)
+      end
+    end
+
+    it "opens a bare repo" do
+      Fixture.init_repo(make: true, bare: true) do |init, path|
+        repo = Grits::Repo.open_bare(path)
+        init.bare?.should eq(true)
+        repo.bare?.should eq(true)
+      end
+    end
+
+    it "opens with extended behavior" do
+      flags = [Grits::Repo::OpenTypes::FromEnv]
+
+      Fixture.init_repo(make: true) do |init, path|
+        repo = Grits::Repo.open_ext(path, flags)
+        repo.bare?.should eq(false)
+      end
+    end
+  end
+
+  describe "::init_ext" do
+    it "initializes with options" do
+      options = Grits::RepoInitOptions.default
+      options.origin_url = "https://foo.bar.git"
+      Fixture.init_ext_repo(make: true, options: options) do |repo, path|
+        repo.empty?.should eq(true)
+        repo.remote("origin").url.should eq("https://foo.bar.git")
       end
     end
   end
