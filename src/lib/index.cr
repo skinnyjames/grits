@@ -22,6 +22,18 @@ lib LibGit
     path : LibC::Char*
   end
 
+  struct IndexerProgress
+    total_objects : LibC::UInt
+    indexed_objects : LibC::UInt
+    recieved_objects : LibC::UInt
+    local_objects : LibC::UInt
+    total_deltas : LibC::UInt
+    indexed_deltas : LibC::UInt
+    recieved_bytes : LibC::SizeT
+  end
+
+  alias IndexerProgressCb = (IndexerProgress*, Void* -> LibC::Int)
+
   # operations
   fun index_add = git_index_add(index: Index, entry : IndexEntry) : LibC::Int
   fun index_add_bypath = git_index_add_bypath(index : Index, path : LibC::Char*) : LibC::Int

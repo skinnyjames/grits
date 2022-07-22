@@ -1,6 +1,12 @@
 @[Link("git2")]
 lib LibGit
+  REMOTE_CALLBACKS_VERSION = 1
+
   type Remote = Void*
+
+  alias RemoteCb = (Remote*, Repository, LibC::Char*, LibC::Char*, Void* -> LibC::Int)
+  alias RemoteReadyCb = (Remote, LibC::Int, Void* -> LibC::Int)
+  alias UrlResolveCb = (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
 
   enum RemoteAutoTagOptionT
     DownloadTagsUnspecified
@@ -9,12 +15,42 @@ lib LibGit
     DownloadTagsAll
   end
 
+  enum RemoteAutotagOptionT
+    Unspecified
+    Auto
+    None
+    All
+  end
+
+  enum RemoteCompletionT
+    Download
+    Indexing
+    Error
+  end
+
   struct RemoteHead
     local : LibC::Int
     oid : Oid
     loid : Oid
     name : LibC::Char*
     symref_target : LibC::Char*
+  end
+
+  struct RemoteCallbacks
+    version : LibC::UInt
+    sideband_progress : (LibC::Char*, LibC::Int, Void* -> LibC::Int) # todo
+    completion :  (RemoteCompletionT, Void* -> LibC::Int) #done
+    credentials : (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int) #done
+    certificate_check : (GitCert*, LibC::Int, LibC::Char*, Void* -> LibC::Int) #done
+    transfer_progress : (IndexerProgress*, Void* -> LibC::Int) #done
+    update_tips : (LibC::Char*, Oid*, Oid*,  Void* -> LibC::Int) # done
+    pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int) #done
+    push_transfer_progress :  (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int) #done
+    push_update_reference : (LibC::Char*, LibC::Char*, Void* -> LibC::Int) #done
+    push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done (revisit with PushUpdate**)
+    transport : (Transport*, Remote, Void* -> LibC::Int) #revisit but done
+    payload : Void*
+    resolve_url : (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int) #done
   end
 
   fun remote_update_tips = git_remote_update_tips(remote : Remote, callbacks : RemoteCallbacks, update_fetchhead : LibC::Int, download_tags : RemoteAutoTagOptionT, reflog_message : LibC::Char*) : LibC::Int

@@ -1,7 +1,7 @@
 @[Link("git2")]
 lib LibGit
   type Repository = Void*
-  type Config = Void*
+  alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
 
   enum RepositoryItemT
     Gitdir
@@ -30,17 +30,20 @@ lib LibGit
     FromEnv
   end
 
+  struct RepositoryInitOptions
+    version : LibC::UInt
+    flags : Uint32T
+    mode : Uint32T
+    workdir_path : LibC::Char*
+    description : LibC::Char*
+    template_path : LibC::Char*
+    initial_head : LibC::Char*
+    origin_url : LibC::Char*
+  end
+
   alias RepositoryFetchheadForeachCb = (LibC::Char*, LibC::Char*, LibGit::Oid*, LibC::UInt, Void* -> LibC::Int)
 
-  fun config_free = git_config_free(config : Config) : Void
   fun repository_config_snapshot = git_repository_config_snapshot(out : Config*, repo : Repository) : LibC::Int
-  fun config_set_bool = git_config_set_bool(config : Config, name : LibC::Char*, value : LibC::Int) : LibC::Int
-  fun config_get_bool = git_config_get_bool(out : LibC::Int*, cfg : Config, name : LibC::Char*) : LibC::Int
-  fun revparse_single = git_revparse_single(out : Object*, repo : Repository, text : LibC::Char*) : LibC::Int
-  fun checkout_tree = git_checkout_tree(repo : Repository, treeish : Object, options : CheckoutOptions*) : LibC::Int
-  fun checkout_head = git_checkout_head(repository : Repository, options : CheckoutOptions*) : LibC::Int
-
-
   fun repository_item_path = git_repository_item_path(buf : Buf*, repo : Repository, item : RepositoryItemT) : LibC::Int
   fun repository_commondir = git_repository_commondir(repo : Repository) : LibC::Char*
   fun repository_open = git_repository_open(out : Repository*, path : LibC::Char*) : LibC::Int
@@ -50,8 +53,7 @@ lib LibGit
   fun repository_free = git_repository_free(repo : Repository)
   fun repository_init = git_repository_init(out : Repository*, path : LibC::Char*, is_bare : LibC::UInt) : LibC::Int
   fun repository_clone = git_repository_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, clone_options : CloneOptions)
-  fun clone_options_init = git_clone_options_init(opts : CloneOptions*, version : LibC::UInt) : LibC::Int
-  fun clone = git_clone(out : Repository*, url : LibC::Char*, path : LibC::Char*, options : CloneOptions*) : LibC::Int
+
   fun repository_init_options_init = git_repository_init_options_init(opts : RepositoryInitOptions*, version : LibC::UInt) : LibC::Int
 
   fun repository_init_ext = git_repository_init_ext(out : Repository*, repo_path : LibC::Char*, opts : RepositoryInitOptions*) : LibC::Int
