@@ -5,7 +5,7 @@ module Grits
     alias CredentialsAcquireCb = (Credential -> Int32)
     alias CertificateCheckCb = (Wrappers::Certificate, String, Bool -> Bool?)
     alias IndexerProgressCb = (Wrappers::IndexerProgress -> Bool?)
-    # these may return things that affect the remote instead of Void (no docs)
+    # these may return things that affect the remotable instead of Void (no docs)
     alias UpdateTipsCb = (String, Oid, Oid -> Void)
     alias PackBuilderProgressCb = (Int32, UInt32, UInt32 -> Void)
     alias PushTransferProgressCb = (UInt32, UInt32, LibC::SizeT -> Void)

@@ -1,4 +1,6 @@
 module Grits
+  alias RemoteCreateCb = (Repo, String, String -> Grits::Remote)
+
   class Remote
     include Mixins::Pointable
 

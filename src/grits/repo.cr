@@ -1,6 +1,8 @@
 require "file_utils"
 
 module Grits
+  alias RepositoryCreateCb = (String, Bool -> Grits::Repo) # not implemented
+
   class RepoInitOptions
     include Mixins::Wrapper
     include Mixins::Pointable
