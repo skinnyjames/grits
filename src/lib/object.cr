@@ -1,18 +1,16 @@
-@[Link("git2")]
+@[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   type Object = Void*
 
   enum OType
-    Any = -2
-    Bad = -1
-    # _EXT1 = 0
-    Commit = 1
-    Tree  = 2
-    Blob   = 3
-    Tag    = 4
-    # _EXT2 = 5
-    OfsDelta = 6
-    RefDelta = 7
+    Any
+    Bad
+    Commit
+    Tree
+    Blob
+    Tag
+    OfsDelta
+    RefDelta
   end
 
   fun object_lookup_prefix = git_object_lookup_prefix(object_out : Object*, repo : Repository, id : Oid*, len : LibC::SizeT, type : OType) : LibC::Int

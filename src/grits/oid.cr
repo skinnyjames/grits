@@ -5,17 +5,21 @@ module Grits
 
     def self.from_sha(sha : String)
       if sha.size == 40
-        Error.giterr LibGit.oid_fromstr(out str_value, sha), "Cannot find oid from sha"
-        new(pointerof(str_value))
+        Error.giterr LibGit.oid_fromstrp(out oid, sha), "Cannot find oid from sha"
+        ptr = pointerof(oid)
+        a = new(ptr)
+        a
       else
         Error.giterr LibGit.oid_fromstrn(out strn_value, sha, sha.size), "Cannot find oid from sha"
         new(pointerof(strn_value))
       end
     end
 
-    def to_s(io)
-      p = LibGit.oid_tostr_s(to_unsafe)
-      io << String.new(p)
+    def string
+      a = to_unsafe_ptr
+      
+      char = LibGit.oid_tostr_s(to_unsafe)
+      IO::Memory.new(char.to_slice(40)).gets_to_end
     end
 
     def initialize(@raw : LibGit::Oid*); end
