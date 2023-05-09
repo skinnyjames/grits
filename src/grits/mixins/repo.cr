@@ -74,8 +74,7 @@ module Grits
 
       def hash_file(path : String, type : Object::Type, as_path : String? = nil)
         Error.giterr LibGit.repository_hashfile(out oid, to_unsafe, path, type, as_path), "Cannot hash file"
-        ptr = pointerof(oid)
-        Oid.new(ptr)
+        Oid.new(oid)
       end
 
       def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
@@ -113,7 +112,7 @@ module Grits
           cb = Box(EachFetchHeadCb).unbox(payload)
           ref_name = String.new(ref)
           url = String.new(remote_url)
-          oid = Oid.new(git_oid)
+          oid = Oid.new(git_oid.value)
           merge = is_merge.positive?
 
           b = cb.call(ref_name, url, oid, merge)
@@ -179,12 +178,9 @@ module Grits
         rems.each(&.free) if rems
       end
 
-      def lookup_commit(oid : Oid)
-        lookup_commit oid.to_unsafe
-      end
-
-      def lookup_commit(sha : String)
-        lookup_commit Oid.from_sha(sha)
+      def lookup_commit(sha : String) : Commit
+        oid = Oid.from_sha(sha)
+        lookup_commit_by_oid(oid)
       end
 
       def lookup_tree(oid : Oid)
@@ -198,7 +194,9 @@ module Grits
 
       def last_commit
         Error.giterr LibGit.reference_name_to_id(out oid, to_unsafe, "HEAD"), "couldn't reference id"
-        lookup_commit Oid.new(pointerof(oid))
+        obj = Grits::Oid.new(oid)
+
+        lookup_commit_by_oid(obj)
       end
 
       def item_path(item : Item)
@@ -216,8 +214,15 @@ module Grits
         db.free if db
       end
 
-      protected def lookup_commit(oid_ptr : Pointer(LibGit::Oid))
-        Error.giterr LibGit.commit_lookup(out commit, to_unsafe, oid_ptr), "Cannot load commit"
+      def find_commit_by_oid(oid : Grits::Oid)
+        Error.giterr LibGit.commit_lookup(out commit, to_unsafe, oid.to_unsafe), "Cannot load commit"
+        Commit.new(commit)
+      end
+
+      def lookup_commit_by_oid(oid : Grits::Oid)
+        raw = oid.to_unsafe
+
+        Error.giterr LibGit.commit_lookup(out commit, to_unsafe, pointerof(raw)), "Cannot load commit"
         Commit.new(commit)
       end
     end

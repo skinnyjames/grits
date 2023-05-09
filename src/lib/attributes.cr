@@ -1,4 +1,4 @@
-@[Link("git2")]
+@[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   # The attribute has been left unspecified
   AttrUnspecifiedT = 0_i64

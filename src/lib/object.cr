@@ -1,16 +1,14 @@
-@[Link("git2")]
+@[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   type Object = Void*
 
   enum OType
     Any = -2
     Bad = -1
-    # _EXT1 = 0
     Commit = 1
-    Tree  = 2
-    Blob   = 3
-    Tag    = 4
-    # _EXT2 = 5
+    Tree = 2
+    Blob = 3
+    Tag = 4
     OfsDelta = 6
     RefDelta = 7
   end

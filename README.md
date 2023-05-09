@@ -9,6 +9,8 @@ Git library in progress for Crystal
 
 Built over `libgit2` with the majority of the bindings borrowed from [smacker/libgit2.cr](https://github.com/smacker/libgit2.cr)
 
+Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compatibility.
+
 ## why?
 
 * I want to learn more about Crystal C interop
@@ -65,7 +67,6 @@ end
 
 
 ```
-
 
 ## Development
 

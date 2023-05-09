@@ -39,7 +39,7 @@ describe Grits::Repo do
       Fixture.init_repo(make: true) do |repo, path|
         Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
 
-        oid = repo.hash_file("#{repo.workdir}/something.text", Grits::Object::Type::Commit)
+        oid = repo.hash_file("something.text", Grits::Object::Type::Commit)
         oid.should be_a(Grits::Oid)
       end
     end

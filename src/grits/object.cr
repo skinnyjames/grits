@@ -1,5 +1,5 @@
 module Grits
-  struct Object
+  class Object
     alias Type = LibGit::OType
 
     include Mixins::Pointable
@@ -27,8 +27,13 @@ module Grits
       LibGit.object_type(to_unsafe)
     end
 
-    def free
-      LibGit.object_free(to_unsafe)
+    def finalize
+      free
     end
+
+    def free
+      LibGit.object_free(pointerof(to_unsafe))
+    end
+
   end
 end

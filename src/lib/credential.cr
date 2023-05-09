@@ -1,4 +1,4 @@
-@[Link("git2")]
+@[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   type Credential = Void*
   alias CredentialsAcquireCb = (Credential*, LibC::Char*, LibC::Char*, LibC::UInt, Void* -> LibC::Int)

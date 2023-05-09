@@ -1,4 +1,4 @@
-@[Link("git2")]
+@[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   REMOTE_CALLBACKS_VERSION = 1
 
@@ -49,6 +49,7 @@ lib LibGit
     push_update_reference : (LibC::Char*, LibC::Char*, Void* -> LibC::Int) #done
     push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done (revisit with PushUpdate**)
     transport : (Transport*, Remote, Void* -> LibC::Int) #revisit but done
+    remote_ready : (Remote, LibC::Int, Void* -> LibC::Int) # done
     payload : Void*
     resolve_url : (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int) #done
   end
