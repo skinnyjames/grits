@@ -3,14 +3,14 @@ lib LibGit
   type Object = Void*
 
   enum OType
-    Any
-    Bad
-    Commit
-    Tree
-    Blob
-    Tag
-    OfsDelta
-    RefDelta
+    Any = -2
+    Bad = -1
+    Commit = 1
+    Tree = 2
+    Blob = 3
+    Tag = 4
+    OfsDelta = 6
+    RefDelta = 7
   end
 
   fun object_lookup_prefix = git_object_lookup_prefix(object_out : Object*, repo : Repository, id : Oid*, len : LibC::SizeT, type : OType) : LibC::Int

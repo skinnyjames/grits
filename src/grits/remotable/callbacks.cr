@@ -136,7 +136,7 @@ module Grits
           when :update_tips
             @raw.update_tips = ->(word : LibC::Char*, oid : LibGit::Oid*, oid_2 : LibGit::Oid*, payload : Void*) do
               callback = Box(CallbacksState).unbox(payload).on_update_tips
-              callback.try { |cb| cb.call(String.new(word), Oid.new(oid), Oid.new(oid_2)) }
+              callback.try { |cb| cb.call(String.new(word), Oid.new(oid.value), Oid.new(oid_2.value)) }
               0
             end
           when :pack_progress

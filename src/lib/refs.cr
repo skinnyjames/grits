@@ -14,7 +14,7 @@ lib LibGit
   fun reference_owner = git_reference_owner(ref : Reference) : Repository
   fun reference_type = git_reference_type(ref : Reference) : RefT
   fun reference_name = git_reference_name(ref : Reference) : LibC::Char*
-  fun reference_name_to_id = git_reference_name_to_id(oid : Oid*, repo : Repository, name : LibC::Char*) : LibC::Int
+  fun reference_name_to_id = git_reference_name_to_id(out : Oid*, repo : Repository, name : LibC::Char*) : LibC::Int
   fun reference_target = git_reference_target(ref : Reference) : Oid*
   fun reference_symbolic_target = git_reference_symbolic_target(ref : Reference) : LibC::Char*
   fun reference_free = git_reference_free(ref : Reference)

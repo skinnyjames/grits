@@ -73,7 +73,7 @@ module Grits
 
       LibGit.commit_create(out commit_id, repo.to_unsafe, update_ref, author_signature.to_unsafe, committer_signature.to_unsafe, encoding, message, tree.to_unsafe, parent_size, parent_refs)
       
-      oid = Oid.new(pointerof(commit_id))
+      oid = Oid.new(commit_id)
       commit = repo.lookup_commit_by_oid(oid)
 
       author_signature.free
@@ -111,13 +111,12 @@ module Grits
     end
 
     def sha
-      id.string
+      id.to_s
     end
 
     def id
       oid = LibGit.commit_id(to_unsafe)
-      a = Oid.new(oid)
-      a
+      Oid.new(oid.value)
     end
 
     def free
