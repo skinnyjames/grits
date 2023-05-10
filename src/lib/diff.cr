@@ -113,7 +113,7 @@ lib LibGit
     num_lines : LibC::Int
     content_len : LibC::SizeT
     content_offset : OffT
-    content : LibC::Char*
+    content : Pointer(LibC::Char)
   end
 
   alias DiffLineCb = (DiffDelta*, DiffHunk*, DiffLine*, Void* -> LibC::Int)

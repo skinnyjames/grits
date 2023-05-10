@@ -1,7 +1,24 @@
 require "./spec_helper"
 
 describe Grits::Diff do
-  # Work in progress
+  it "can diff workdir with stage" do
+    Fixture.clone_default_http do |repo, path|
+      File.open("#{path}/file1", "a") do |io|
+        io << "another line"
+        io << "again another line"
+      end
+
+      repo.index do |stage|
+        # lines is 3, one is a missing a newline and 2 added.
+        stage.diff_workdir do |diff|
+          diff.files.size.should eq(1)
+          diff.hunks.size.should eq(1)
+          diff.lines.size.should eq(3)
+        end
+      end
+    end
+  end
+
   describe "#options" do
     it "can show untracked content" do
       diff_options = Grits::DiffOptions.default
@@ -21,7 +38,7 @@ describe Grits::Diff do
       
         repo.index do |index|
           index.diff_workdir(diff_options) do |diff|
-            diff.file_deltas.size.should eq(2)
+            diff.files.size.should eq(2)
           end
         end
       end

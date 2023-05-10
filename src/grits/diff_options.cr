@@ -74,8 +74,6 @@ module Grits
 
       unsafe = to_unsafe
 
-      puts unsafe.flags
-
       unless @flags.empty?
         unsafe.flags = @flags.map(&.value).reduce do |memo, val|
           memo | val

@@ -1,8 +1,8 @@
 module Grits
   alias DiffFileCb = (Grits::DiffDelta, Float64 ->)
-  alias DiffBinaryCb = (Grits::DiffDelta, Grits::DiffBinary ->)
-  alias DiffHunkCb = (Grits::DiffDelta, Grits::DiffHunk ->)
-  alias DiffLineCb = (Grits::DiffDelta, Grits::DiffHunk, Grits::DiffLine ->)
+  alias DiffBinaryCb = (Grits::DiffBinary ->)
+  alias DiffHunkCb = (Grits::DiffHunk ->)
+  alias DiffLineCb = (Grits::DiffLine ->)
 
   class DiffForeachCallbacks < CallbacksState
     define_callback DiffFileCb, file
@@ -52,10 +52,9 @@ module Grits
           @binary_cb = ->(delta : LibGit::DiffDelta*, binary : LibGit::DiffBinary*, payload : Void*) do
             
             if callback = Box(DiffForeachCallbacks).unbox(payload).on_binary
-              wrapped_delta = Grits::DiffDelta.new(delta)
-              wrapped_binary = Grits::DiffBinary.new(binary)
+              wrapped_binary = Grits::DiffBinary.new(binary, delta: delta)
 
-              callback.call(wrapped_delta, wrapped_binary)
+              callback.call(wrapped_binary)
             end
             
             0
@@ -63,10 +62,9 @@ module Grits
         when :hunk
           @hunk_cb = ->(delta : LibGit::DiffDelta*, hunk : LibGit::DiffHunk*, payload : Void*) do
             if callback = Box(DiffForeachCallbacks).unbox(payload).on_hunk
-              wrapped_delta = Grits::DiffDelta.new(delta)
-              wrapped_hunk = Grits::DiffHunk.new(hunk)
+              wrapped_hunk = Grits::DiffHunk.new(hunk, delta: delta)
 
-              callback.call(wrapped_delta, wrapped_hunk)
+              callback.call(wrapped_hunk)
             end
             
             0
@@ -74,17 +72,20 @@ module Grits
         when :line
           @line_cb = -> (delta : LibGit::DiffDelta*, hunk : LibGit::DiffHunk*, line : LibGit::DiffLine*, payload : Void*) do
             if callback = Box(DiffForeachCallbacks).unbox(payload).on_line
-              wrapped_delta = Grits::DiffDelta.new(delta)
-              wrapped_hunk = Grits::DiffHunk.new(hunk)
-              wrapped_line = Grits::DiffLine.new(line)
-
-              callback.call(wrapped_delta, wrapped_hunk, wrapped_line)
+              line = Grits::DiffLine.new(line, hunk: hunk, delta: delta)
+              callback.call(line)
             end
 
             0
           end
         end
       end
+    end
+
+    def self.make_diff_line(line : LibGit::DiffLine*, hunk, delta)
+
+
+ 
     end
   end
 end
