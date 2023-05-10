@@ -23,39 +23,38 @@ lib LibGit
     new_prefix : LibC::Char*
   end
 
-  @[Flags]
   enum DiffOptionT
-    Normal
-    Reverse
-    IncludeIgnored
-    RecurseIgnoredDirs
-    IncludeUntracked
-    RecurseUntrackedDirs
-    IncludeModified
-    IncludeTypechange
-    IncludeTypechangeTrees
-    IgnoreFilemode
-    IgnoreSubmodules
-    IgnoreCase
-    IncludeCasechange
-    DisablePathspecMatch
-    SkipBinaryCheck
-    EnableFastUntrackedDirs
-    UpdateIndex
-    IncludeUnreadable
-    IncludeUnreadableAsUntracked
-    IndentHeuristic
-    IgnoreBlankLines
-    ForceText
-    ForceBinary
-    IgnoreWhitespace
-    IgnoreWhitespaceChange
-    IgnoreWhitespaceEol
-    ShowUntrackedContent
-    ShowUnmodified
-    Patience
-    Minimal
-    ShowBinary
+    Normal = 0
+    Reverse = 1 << 0
+    IncludeIgnored = 1 << 1
+    RecurseIgnoredDirs = 1 << 2
+    IncludeUntracked = 1 << 3
+    RecurseUntrackedDirs = 1 << 4
+    IncludeUnmodified = 1 << 5
+    IncludeTypechange = 1 << 6
+    IncludeTypechangeTrees = 1 << 7
+    IgnoreFilemode = 1 << 8
+    IgnoreSubmodules = 1 << 9
+    IgnoreCase = 1 << 10
+    IncludeCasechange = 1 << 11
+    DisablePathspecMatch = 1 << 12
+    SkipBinaryCheck = 1 << 13
+    EnableFastUntrackedDirs = 1 << 14
+    UpdateIndex = 1 << 15
+    IncludeUnreadable = 1 << 16
+    IncludeUnreadableAsUntracked = 1 << 17
+    IndentHeuristic = 1 << 18
+    IgnoreBlankLines = 1 << 19
+    ForceText = 1 << 20
+    ForceBinary = 1 << 21
+    IgnoreWhitespace = 1 << 22
+    IgnoreWhitespaceChange = 1 << 23
+    IgnoreWhitespaceEol = 1 << 24
+    ShowUntrackedContent = 1 << 25
+    ShowUnmodified = 1 << 26
+    Patience = 1 << 28
+    Minimal = 1 << 29
+    ShowBinary = 1 << 30
   end
 
   enum DeltaT

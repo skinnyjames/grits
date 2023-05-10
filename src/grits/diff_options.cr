@@ -139,8 +139,8 @@ module Grits
           @raw.progress_cb = -> (diffptr : LibGit::Diff, old_path : LibC::Char*, new_path : LibC::Char*, payload : Void*) do
             if callback = Box(DiffOptionsCallbacks).unbox(payload).on_progress
               wrapped_diff = Grits::Diff.new(diffptr)
-              wrapped_old_path = String.new(old_path)
-              wrapped_new_path = String.new(new_path)
+              wrapped_old_path = old_path.null? ? nil : String.new(old_path)
+              wrapped_new_path = new_path.null? ? nil :  String.new(new_path)
 
               callback.call(wrapped_diff, wrapped_old_path, wrapped_new_path) ? 0 : -1
             end
