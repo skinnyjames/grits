@@ -4,10 +4,10 @@ version: 0.1.0
 authors:
   - Sean Gregory <sean.christopher.gregory@gmail.com>
 
+description: |
+  Crystal bindings for libgit2
+
 crystal: 1.1.1
 
 license: MIT
 
-targets: 
-  spec: 
-    main: spec/repository_spec.cr 
