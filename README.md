@@ -78,6 +78,12 @@ then
 
 `crystal spec`
 
+### Manual validation
+
+Navigate to `http://127.0.0.1:3000`
+
+Login with `skinnyjames` / `password`
+
 ## Contributing
 
 1. Fork it (<https://gitlab.com/skinnyjames/grits/-/forks/new>)

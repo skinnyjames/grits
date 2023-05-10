@@ -77,6 +77,18 @@ module Grits
         Oid.new(oid)
       end
 
+      def diff_workdir(options = DiffOptions.default) : Diff
+        Error.giterr LibGit.diff_index_to_workdir(out diff, to_unsafe, Pointer(Void).null.as(LibGit::Index), options.to_unsafe_ptr), "Cannot diff index with repo workdir"
+  
+        Diff.new(diff)
+      end
+
+      def diff_workdir(options = DiffOptions.default, &)
+        diff = diff_workdir(options)
+        yield(diff)
+        diff.free
+      end  
+
       def discover(start : String, across_fs : Bool = false, cieling_dirs : String = "") : String
         across = across_fs ? 1 : 0
         buffer = Buffer.create

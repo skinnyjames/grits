@@ -19,28 +19,30 @@ describe Grits::Commit do
         committer = author
 
         repo.index do |index|
-          Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
-          index.add "something.text"
+          index.write_tree do |tree|
+            Fixture.write_file("#{repo.workdir}/something.text", "Hello World")
+            index.add "something.text"
 
-          Grits::Commit.create(repo,
-            author: author,
-            message: "Hello World",
-            committer: committer,
-            parents: [parent],
-            tree: index.tree,
-            update_ref: "HEAD"
-          ) do |commit|
+            Grits::Commit.create(repo,
+              author: author,
+              message: "Hello World",
+              committer: committer,
+              parents: [parent],
+              tree: tree,
+              update_ref: "HEAD"
+            ) do |commit|
 
-            repo.empty?.should eq(false)
-            commit.message.should eq("Hello World")
+              repo.empty?.should eq(false)
+              commit.message.should eq("Hello World")
 
-            commit.author.name.should eq(author[:name])
-            commit.author.email.should eq(author[:email])
-            commit.author.time.should eq(Fixture.remove_milliseconds_from_time(author[:time]))
+              commit.author.name.should eq(author[:name])
+              commit.author.email.should eq(author[:email])
+              commit.author.time.should eq(Fixture.remove_milliseconds_from_time(author[:time]))
 
-            commit.committer.name.should eq(committer[:name])
-            commit.committer.email.should eq(committer[:email])
-            commit.committer.time.should eq(Fixture.remove_milliseconds_from_time(committer[:time]))
+              commit.committer.name.should eq(committer[:name])
+              commit.committer.email.should eq(committer[:email])
+              commit.committer.time.should eq(Fixture.remove_milliseconds_from_time(committer[:time]))
+            end
           end
         end
       end
@@ -52,30 +54,31 @@ describe Grits::Commit do
 
       Fixture.init_repo(make: true) do |repo, path|
         repo.index do |index|
-          tree = index.tree
+          index.write_tree do |tree|
 
-          Fixture.write_file("#{path}/something.text", "Hello World")
-          index.add "something.text"
+            Fixture.write_file("#{path}/something.text", "Hello World")
+            index.add "something.text"
 
-          Grits::Commit.create(repo,
-            author: author,
-            message: "Hello World",
-            committer: committer,
-            parents: [] of String,
-            tree: tree,
-            update_ref: "HEAD"
-          ) do |commit|
+            Grits::Commit.create(repo,
+              author: author,
+              message: "Hello World",
+              committer: committer,
+              parents: [] of String,
+              tree: tree,
+              update_ref: "HEAD"
+            ) do |commit|
 
-            repo.empty?.should eq(false)
-            commit.message.should eq("Hello World")
+              repo.empty?.should eq(false)
+              commit.message.should eq("Hello World")
 
-            commit.author.name.should eq(author[:name])
-            commit.author.email.should eq(author[:email])
-            commit.author.time.should eq(Fixture.remove_milliseconds_from_time(author[:time]))
+              commit.author.name.should eq(author[:name])
+              commit.author.email.should eq(author[:email])
+              commit.author.time.should eq(Fixture.remove_milliseconds_from_time(author[:time]))
 
-            commit.committer.name.should eq(committer[:name])
-            commit.committer.email.should eq(committer[:email])
-            commit.committer.time.should eq(Fixture.remove_milliseconds_from_time(committer[:time]))
+              commit.committer.name.should eq(committer[:name])
+              commit.committer.email.should eq(committer[:email])
+              commit.committer.time.should eq(Fixture.remove_milliseconds_from_time(committer[:time]))
+            end
           end
         end
       end

@@ -168,5 +168,13 @@ module Grits
         i.free
       end
     end
+
+    def write_tree(&)
+      index do |i|
+        i.write_tree do |t|
+          yield(t)
+        end
+      end
+    end
   end
 end

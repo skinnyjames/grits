@@ -9,7 +9,7 @@ lib LibGit
 
   struct DiffOptions
     version : LibC::UInt
-    flags : Uint32T
+    flags : UInt32
     ignore_submodules : SubmoduleIgnoreT
     pathspec : Strarray
     notify_cb : DiffNotifyCb
@@ -21,6 +21,41 @@ lib LibGit
     max_size : OffT
     old_prefix : LibC::Char*
     new_prefix : LibC::Char*
+  end
+
+  @[Flags]
+  enum DiffOptionT
+    Normal
+    Reverse
+    IncludeIgnored
+    RecurseIgnoredDirs
+    IncludeUntracked
+    RecurseUntrackedDirs
+    IncludeModified
+    IncludeTypechange
+    IncludeTypechangeTrees
+    IgnoreFilemode
+    IgnoreSubmodules
+    IgnoreCase
+    IncludeCasechange
+    DisablePathspecMatch
+    SkipBinaryCheck
+    EnableFastUntrackedDirs
+    UpdateIndex
+    IncludeUnreadable
+    IncludeUnreadableAsUntracked
+    IndentHeuristic
+    IgnoreBlankLines
+    ForceText
+    ForceBinary
+    IgnoreWhitespace
+    IgnoreWhitespaceChange
+    IgnoreWhitespaceEol
+    ShowUntrackedContent
+    ShowUnmodified
+    Patience
+    Minimal
+    ShowBinary
   end
 
   enum DeltaT
@@ -124,6 +159,9 @@ lib LibGit
     payload : Void*
   end
 
+  fun diff_index_to_workdir = git_diff_index_to_workdir(diff : Diff*, repo : Repository, index : Index, options : DiffOptions*) : LibC::Int
+  fun diff_options_init = git_diff_options_init(options : DiffOptions*, version : LibC::UInt) : LibC::Int
+  fun diff_blobs = git_diff_blobs(old : Blob, old_as_path : LibC::Char*, new : Blob, new_as_path : LibC::Char*, options : DiffOptions*, file_cb : DiffFileCb, binary_cb : DiffBinaryCb, hunk_cb : DiffHunkCb, line_cb : DiffLineCb, payload : Void*) : LibC::Int
   fun diff_free = git_diff_free(diff : Diff)
   fun diff_tree_to_tree = git_diff_tree_to_tree(diff : Diff*, repo : Repository, old_tree : Tree, new_tree : Tree, opts : DiffOptions*) : LibC::Int
   fun diff_tree_to_workdir = git_diff_tree_to_workdir(diff : Diff*, repo : Repository, old_tree : Tree, opts : DiffOptions*) : LibC::Int
