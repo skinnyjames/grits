@@ -102,10 +102,6 @@ lib LibGit
 
   alias DiffHunkCb = (DiffDelta*, DiffHunk*, Void* -> LibC::Int)
 
-  DIFF_LINE_CONTEXT  = ' '
-  DIFF_LINE_ADDITION = '+'
-  DIFF_LINE_DELETION = '-'
-
   struct DiffLine
     origin : LibC::Char
     old_lineno : LibC::Int

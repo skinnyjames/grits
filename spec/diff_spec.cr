@@ -14,6 +14,7 @@ describe Grits::Diff do
           diff.files.size.should eq(1)
           diff.hunks.size.should eq(1)
           diff.lines.size.should eq(3)
+          diff.deltas(Grits::DiffDeltaType::Modified).should eq(1)
         end
       end
     end
