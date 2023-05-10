@@ -81,11 +81,5 @@ module Grits
         end
       end
     end
-
-    def self.make_diff_line(line : LibGit::DiffLine*, hunk, delta)
-
-
- 
-    end
   end
 end
