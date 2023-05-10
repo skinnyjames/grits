@@ -37,29 +37,7 @@ module Grits
       end
     end
 
-    struct CallbacksState
-      getter :callbacks
-
-      macro define_callback(type, key)
-        def on_{{ key }}(&block : {{ type }})
-          @callbacks <<  :{{ key }}
-
-          @on_{{ key }} = block
-        end
-
-        def on_{{ key }}
-          @on_{{ key }}
-        end
-      end
-
-      def initialize
-        @callbacks = [] of Symbol
-      end
-
-      def empty?
-        @callbacks.empty?
-      end
-
+    class CallbacksState < Grits::CallbacksState
       define_callback CertificateCheckCb, certificate_check
       define_callback CredentialsAcquireCb, credentials_acquire
       define_callback IndexerProgressCb, transfer_progress

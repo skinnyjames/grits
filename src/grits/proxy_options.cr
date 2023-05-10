@@ -18,13 +18,17 @@ module Grits
     define_callback credentials_acquire, Remotable::CredentialsAcquireCb, callbacks
     define_callback certificate_check, Remotable::CertificateCheckCb, callbacks
 
-    protected def computed_unsafe
+    protected def add_callbacks
       unless @callbacks.empty?
         callbacks = @callbacks.computed_unsafe
         to_unsafe.credentials = callbacks.credentials
         to_unsafe.certificate_check = callbacks.certificate_check
         to_unsafe.payload = callbacks.payload
       end
+    end
+
+    protected def computed_unsafe
+      add_callbacks
 
       to_unsafe
     end

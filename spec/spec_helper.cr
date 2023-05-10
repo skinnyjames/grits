@@ -2,6 +2,7 @@ require "spec"
 require "../src/grits"
 require "random/secure"
 require "log"
+require "file"
 
 Spec.before_suite do
   Fixture.write_secrets
@@ -52,8 +53,14 @@ class Fixture
     "#{__DIR__}/helpers/gitea/gitea.pub"
   end
 
+  # Change file permissions to 600
+  # before using this path.
   def self.gitea_private_key_path
-    "#{__DIR__}/helpers/gitea/gitea"
+    path = "#{__DIR__}/helpers/gitea/gitea"
+
+    File.chmod(path, 0o600)
+
+    path
   end
 
   def self.random_user
@@ -66,6 +73,18 @@ class Fixture
 
   def self.remove_milliseconds_from_time(time)
     Time.parse(time.to_s("%Y-%m-%d %H:%M:%S"), "%Y-%m-%d %H:%M:%S", Time::Location::UTC)
+  end
+
+  def self.clone_default_http(*args, &block)
+    clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git", Random::Secure.hex(5), *args) do |repo, path|
+      yield repo, path
+    end
+  end
+
+  def self.clone_default_ssh(*args, &block)
+    clone_repo("ssh://git@#{Fixture.host}:#{Fixture.ssh_port}/skinnyjames/grits_empty_remote.git", Random::Secure.hex(5), *args) do |repo, path|
+      yield repo, path
+    end
   end
 
   def self.clone_repo(url, dir, *args, &block)

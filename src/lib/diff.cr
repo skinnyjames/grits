@@ -9,7 +9,7 @@ lib LibGit
 
   struct DiffOptions
     version : LibC::UInt
-    flags : Uint32T
+    flags : UInt32
     ignore_submodules : SubmoduleIgnoreT
     pathspec : Strarray
     notify_cb : DiffNotifyCb
@@ -21,6 +21,40 @@ lib LibGit
     max_size : OffT
     old_prefix : LibC::Char*
     new_prefix : LibC::Char*
+  end
+
+  enum DiffOptionT
+    Normal = 0
+    Reverse = 1 << 0
+    IncludeIgnored = 1 << 1
+    RecurseIgnoredDirs = 1 << 2
+    IncludeUntracked = 1 << 3
+    RecurseUntrackedDirs = 1 << 4
+    IncludeUnmodified = 1 << 5
+    IncludeTypechange = 1 << 6
+    IncludeTypechangeTrees = 1 << 7
+    IgnoreFilemode = 1 << 8
+    IgnoreSubmodules = 1 << 9
+    IgnoreCase = 1 << 10
+    IncludeCasechange = 1 << 11
+    DisablePathspecMatch = 1 << 12
+    SkipBinaryCheck = 1 << 13
+    EnableFastUntrackedDirs = 1 << 14
+    UpdateIndex = 1 << 15
+    IncludeUnreadable = 1 << 16
+    IncludeUnreadableAsUntracked = 1 << 17
+    IndentHeuristic = 1 << 18
+    IgnoreBlankLines = 1 << 19
+    ForceText = 1 << 20
+    ForceBinary = 1 << 21
+    IgnoreWhitespace = 1 << 22
+    IgnoreWhitespaceChange = 1 << 23
+    IgnoreWhitespaceEol = 1 << 24
+    ShowUntrackedContent = 1 << 25
+    ShowUnmodified = 1 << 26
+    Patience = 1 << 28
+    Minimal = 1 << 29
+    ShowBinary = 1 << 30
   end
 
   enum DeltaT
@@ -68,10 +102,6 @@ lib LibGit
 
   alias DiffHunkCb = (DiffDelta*, DiffHunk*, Void* -> LibC::Int)
 
-  DIFF_LINE_CONTEXT  = ' '
-  DIFF_LINE_ADDITION = '+'
-  DIFF_LINE_DELETION = '-'
-
   struct DiffLine
     origin : LibC::Char
     old_lineno : LibC::Int
@@ -79,7 +109,7 @@ lib LibGit
     num_lines : LibC::Int
     content_len : LibC::SizeT
     content_offset : OffT
-    content : LibC::Char*
+    content : Pointer(LibC::Char)
   end
 
   alias DiffLineCb = (DiffDelta*, DiffHunk*, DiffLine*, Void* -> LibC::Int)
@@ -124,6 +154,10 @@ lib LibGit
     payload : Void*
   end
 
+  fun diff_status_char = git_diff_status_char(type : DeltaT) : LibC::Char
+  fun diff_index_to_workdir = git_diff_index_to_workdir(diff : Diff*, repo : Repository, index : Index, options : DiffOptions*) : LibC::Int
+  fun diff_options_init = git_diff_options_init(options : DiffOptions*, version : LibC::UInt) : LibC::Int
+  fun diff_blobs = git_diff_blobs(old : Blob, old_as_path : LibC::Char*, new : Blob, new_as_path : LibC::Char*, options : DiffOptions*, file_cb : DiffFileCb, binary_cb : DiffBinaryCb, hunk_cb : DiffHunkCb, line_cb : DiffLineCb, payload : Void*) : LibC::Int
   fun diff_free = git_diff_free(diff : Diff)
   fun diff_tree_to_tree = git_diff_tree_to_tree(diff : Diff*, repo : Repository, old_tree : Tree, new_tree : Tree, opts : DiffOptions*) : LibC::Int
   fun diff_tree_to_workdir = git_diff_tree_to_workdir(diff : Diff*, repo : Repository, old_tree : Tree, opts : DiffOptions*) : LibC::Int

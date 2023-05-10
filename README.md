@@ -7,8 +7,6 @@
 
 Git library in progress for Crystal
 
-Built over `libgit2` with the majority of the bindings borrowed from [smacker/libgit2.cr](https://github.com/smacker/libgit2.cr)
-
 Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compatibility.
 
 ## why?
@@ -78,6 +76,12 @@ then
 
 `crystal spec`
 
+### Manual validation
+
+Navigate to `http://127.0.0.1:3000`
+
+Login with `skinnyjames` / `password`
+
 ## Contributing
 
 1. Fork it (<https://gitlab.com/skinnyjames/grits/-/forks/new>)
@@ -89,3 +93,7 @@ then
 ## Contributors
 
 - [Sean Gregory](https://gitlab.com/skinnyjames) - creator and maintainer
+
+## Thanks
+
+Thanks to [smacker](https://github.com/smacker) for initial work on [smacker/libgit2.cr](https://github.com/smacker/libgit2.cr)

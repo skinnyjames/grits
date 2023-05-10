@@ -24,6 +24,20 @@ module Grits
           end
         {% end %}
       end
+
+      protected def convert_to_strarray(strings : Array(String))
+        strarray = LibGit::Strarray.new
+        stuff = strings.reduce([] of Pointer(UInt8)) do |memo, ref|
+          if a = ref
+            memo << ref.to_unsafe
+          end
+          memo
+        end
+  
+        strarray.strings = stuff
+        strarray.count = stuff.size
+        strarray
+      end
     end
   end
 end

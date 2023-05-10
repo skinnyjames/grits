@@ -52,8 +52,12 @@ module Grits
     define_callback update_tips, Remotable::UpdateTipsCb, callbacks
     define_callback resolve_url, Remotable::ResolveUrlCb, callbacks
 
-    protected def computed_unsafe
+    protected def add_callbacks
       to_unsafe.callbacks = @callbacks.computed_unsafe
+    end
+
+    protected def computed_unsafe
+      add_callbacks
 
       to_unsafe
     end
