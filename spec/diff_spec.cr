@@ -1,6 +1,10 @@
 require "./spec_helper"
 
 describe Grits::Diff do
+  it "returns the status char for a type" do
+    Grits::Diff.status_code(Grits::DiffDeltaType::Modified).should eq("M")
+  end
+
   it "can diff workdir with stage" do
     Fixture.clone_default_http do |repo, path|
       File.open("#{path}/file1", "a") do |io|

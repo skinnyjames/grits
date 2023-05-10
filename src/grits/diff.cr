@@ -6,6 +6,10 @@ module Grits
   struct Diff
     include Mixins::Pointable
 
+    def self.status_code(type : DiffDeltaType)
+      LibGit.diff_status_char(type).chr.to_s
+    end
+
     def initialize(@raw : LibGit::Diff); end
 
     def files : Array(DeltaData)

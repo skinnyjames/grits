@@ -154,6 +154,7 @@ lib LibGit
     payload : Void*
   end
 
+  fun diff_status_char = git_diff_status_char(type : DeltaT) : LibC::Char
   fun diff_index_to_workdir = git_diff_index_to_workdir(diff : Diff*, repo : Repository, index : Index, options : DiffOptions*) : LibC::Int
   fun diff_options_init = git_diff_options_init(options : DiffOptions*, version : LibC::UInt) : LibC::Int
   fun diff_blobs = git_diff_blobs(old : Blob, old_as_path : LibC::Char*, new : Blob, new_as_path : LibC::Char*, options : DiffOptions*, file_cb : DiffFileCb, binary_cb : DiffBinaryCb, hunk_cb : DiffHunkCb, line_cb : DiffLineCb, payload : Void*) : LibC::Int
