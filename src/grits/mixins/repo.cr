@@ -1,12 +1,13 @@
 require "./repository/*"
 
 module Grits
+  alias OpenRepoType = LibGit::RepositoryTypes
+
   module Mixins
     module Repo
       include Repository::Tree
       include Repository::Commit
 
-      alias OpenTypes = LibGit::RepositoryTypes
       alias Item = LibGit::RepositoryItemT
       alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
 

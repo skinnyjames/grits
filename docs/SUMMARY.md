@@ -1,2 +1,3 @@
 * [Introduction](README.md)
-  * [Getting Started](getting_started/README.md)
+  * [Repositories](repositories/README.md)
+* [Library API](Grits/)
