@@ -1,18 +1,9 @@
 # grits
 
-[![Build Status](http://drone.skinnyjames.net/api/badges/skinnyjames/grits/status.svg)](http://drone.skinnyjames.net/skinnyjames/grits)
-
-[api docs](https://skinnyjames.gitlab.io/grits/index.html)
-
-
 Git library in progress for Crystal
 
 Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compatibility.
 
-## why?
-
-* I want to learn more about Crystal C interop
-* I want to learn more about git
 
 ## Installation
 
