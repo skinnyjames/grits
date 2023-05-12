@@ -34,7 +34,7 @@ require "grits"
 dest = "#{__DIR__}/some_folder"
 
 Grits::Repo.clone(
-  "git@gitlab.com:<username>/<private_repo>.git", 
+  "https://gitlab.com/skinnyjames/grits.git", 
   dest, 
   options
 ) do |repo|
