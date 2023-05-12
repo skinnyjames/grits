@@ -27,6 +27,19 @@ module Grits
         String.new LibGit.repository_path(to_unsafe)
       end
 
+      def configured_identity : Tuple(String?, String?)
+        Error.giterr LibGit.repository_ident(out name, out email, to_unsafe), "Cannot get ident for repository"
+      
+        { copy_to_string(name), copy_to_string(email) }
+      end
+
+      def configure_identity(name : String? = nil, email : String? = nil) : Nil
+        name_ptr = name ? pointerof(name) : Pointer(LibC::Char).null
+        email_ptr = name ? pointerof(email) : Pointer(LibC::Char).null
+
+        Error.giterr LibGit.repository_set_ident(to_unsafe, name, email), "Cannot set ident for repository"
+      end
+
       def head
         head? || raise Error::Generic.new("Reference is null, is the repository bare?")
       end
@@ -46,6 +59,20 @@ module Grits
 
       def detach_head
         Error.giterr LibGit.repository_detach_head(to_unsafe)
+      end
+
+      def worktree
+        Error.giterr LibGit.worktree_open_from_repository(out worktree, to_unsafe), "Couldn't open worktree"
+        Worktree.new(worktree, self)
+      end
+
+      def worktree(&)
+        tree = worktree
+        begin
+          yield(tree)
+        ensure
+          tree.free
+        end
       end
 
       def worktree?

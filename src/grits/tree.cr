@@ -20,6 +20,10 @@ module Grits
       end
     end
 
+    def id : Oid
+      Grits.get_tree_id(to_unsafe)
+    end
+
     def free
       LibGit.tree_free(to_unsafe)
     end

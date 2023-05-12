@@ -42,7 +42,6 @@ module Grits
       end
     end
 
-
     def read_tree(tree : Tree)
       Error.giterr LibGit.index_read_tree(to_unsafe, tree.to_unsafe), "Could not read tree from index"
       self

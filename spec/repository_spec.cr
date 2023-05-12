@@ -34,6 +34,17 @@ describe Grits::Repo do
     end
   end
 
+  it "#configured_identity" do
+    Fixture.init_repo(make: true) do |repo, path|
+      repo.configured_identity.should be_a(Tuple(String?, String?))
+
+      repo.configure_identity("Sean Gregory", "sean.christopher.gregory@gmail.com")
+      repo.configured_identity.should eq({"Sean Gregory", "sean.christopher.gregory@gmail.com"})
+      repo.configure_identity
+      repo.configured_identity.should eq({nil, nil})
+    end
+  end
+
   describe "hashfile" do
     it "returns an oid" do
       Fixture.init_repo(make: true) do |repo, path|
