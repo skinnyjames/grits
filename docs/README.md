@@ -32,7 +32,7 @@ and run `shards install`
 
 Grits exposes a friendly interface for interacting with git abstractions.
 
-The primary entrpoint is [Grits::Repo][], but the aim of this shard is to support all libgit2 behaviors.
+The primary entrypoint is [Grits::Repo][], but the aim of this shard is to support all libgit2 behaviors.
 
 For instance, interactive with a private remote repository using an ssh key looks like
 
@@ -46,8 +46,8 @@ options = Grits::CloneOptions.default
 options.fetch_options.on_credentials_acquire do |credential|
   credential.add_ssh_key(
     username: credential.username || "git",
-    public_key: "/path/to/id_rsa.pub",
-    private_key: "/path/to/id_rsa",
+    public_key_path: "/path/to/id_rsa.pub",
+    private_key_path: "/path/to/id_rsa",
   )
 end
 
