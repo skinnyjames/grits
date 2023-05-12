@@ -1,0 +1,53 @@
+site_name: Grits
+use_directory_urls: true
+repo_url: https://gitlab.com/skinnyjames/grits
+edit_uri: https://gitlab.com/skinnyjames/grits/-/blob/main/docs
+site_url: https://skinnyjames.gitlab.io/grits
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light theme
+  icon:
+    repo: fontawesome/brands/gitlab
+  features:
+    - navigation.tabs
+
+extra_css:
+  - css/mkdocstrings.css
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_doc_stubs.py
+  - mkdocstrings:
+      default_handler: crystal
+      watch: [src]
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+
+markdown_extensions:
+  - admonition
+  - callouts
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.saneheaders
+  - pymdownx.superfences
+  - deduplicate-toc
+  - toc:
+      permalink: "#"

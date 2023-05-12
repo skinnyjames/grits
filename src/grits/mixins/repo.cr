@@ -1,6 +1,11 @@
+require "./repository/*"
+
 module Grits
   module Mixins
     module Repo
+      include Repository::Tree
+      include Repository::Commit
+
       alias OpenTypes = LibGit::RepositoryTypes
       alias Item = LibGit::RepositoryItemT
       alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
@@ -27,6 +32,19 @@ module Grits
         String.new LibGit.repository_path(to_unsafe)
       end
 
+      def configured_identity : Tuple(String?, String?)
+        Error.giterr LibGit.repository_ident(out name, out email, to_unsafe), "Cannot get ident for repository"
+      
+        { copy_to_string(name), copy_to_string(email) }
+      end
+
+      def configure_identity(name : String? = nil, email : String? = nil) : Nil
+        name_ptr = name ? pointerof(name) : Pointer(LibC::Char).null
+        email_ptr = name ? pointerof(email) : Pointer(LibC::Char).null
+
+        Error.giterr LibGit.repository_set_ident(to_unsafe, name, email), "Cannot set ident for repository"
+      end
+
       def head
         head? || raise Error::Generic.new("Reference is null, is the repository bare?")
       end
@@ -46,6 +64,20 @@ module Grits
 
       def detach_head
         Error.giterr LibGit.repository_detach_head(to_unsafe)
+      end
+
+      def worktree
+        Error.giterr LibGit.worktree_open_from_repository(out worktree, to_unsafe), "Couldn't open worktree"
+        Worktree.new(worktree, self)
+      end
+
+      def worktree(&)
+        tree = worktree
+        begin
+          yield(tree)
+        ensure
+          tree.free
+        end
       end
 
       def worktree?
@@ -195,21 +227,6 @@ module Grits
         lookup_commit_by_oid(oid)
       end
 
-      def lookup_tree(oid : Oid)
-        Error.giterr LibGit.tree_lookup(out tree, to_unsafe, oid.to_unsafe), "couldn't lookup tree"
-        Tree.new(tree)
-      end
-
-      def lookup_tree(sha : String)
-        lookup_tree Oid.from_sha(string)
-      end
-
-      def last_commit
-        Error.giterr LibGit.reference_name_to_id(out oid, to_unsafe, "HEAD"), "couldn't reference id"
-        obj = Grits::Oid.new(oid)
-
-        lookup_commit_by_oid(obj)
-      end
 
       def item_path(item : Item)
         b = Buffer.create
@@ -226,17 +243,6 @@ module Grits
         db.free if db
       end
 
-      def find_commit_by_oid(oid : Grits::Oid)
-        Error.giterr LibGit.commit_lookup(out commit, to_unsafe, oid.to_unsafe), "Cannot load commit"
-        Commit.new(commit)
-      end
-
-      def lookup_commit_by_oid(oid : Grits::Oid)
-        raw = oid.to_unsafe
-
-        Error.giterr LibGit.commit_lookup(out commit, to_unsafe, pointerof(raw)), "Cannot load commit"
-        Commit.new(commit)
-      end
     end
   end
 end

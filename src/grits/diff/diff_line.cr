@@ -17,7 +17,7 @@ module Grits
     def data
       str = String.build do |io|
         io.write(@raw.value.content.to_slice(@raw.value.content_len))
-        io << '\0'
+        io.write Slice(UInt8).new(0)
       end
 
       LineData.new(

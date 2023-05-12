@@ -31,39 +31,53 @@ Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compa
 ```crystal
 require "grits"
 
-# clone via ssh, add and commit a file
+dest = "#{__DIR__}/some_folder"
 
-options = Grits::CloneOptions.default
-options.fetch_options.on_credentials_acquire do |credential|
-   credential.add_ssh_key(
-      username: credential.username || "git",
-      public_key: ENV["PUBLIC_KEY"],
-      private_key: ENV["PRIVATE_KEY"],
-   )
-end
+Grits::Repo.clone(
+  "git@gitlab.com:<username>/<private_repo>.git", 
+  dest, 
+  options
+) do |repo|
+  # interact with the repo..
+  # create a new untracked file
+  File.write("#{dest}/new.txt", "Hello Grits.\n")
 
-Grits::Repo.clone("git@gitlab.com:seanchristophergregory/grits.git", "./local_grits_dir", options) do |repo|
-   repo.index do |index|
-      author = { email: "sean@sean.com", name: "Sean Gregory", time: Time.utc }
-      committer = author
+  repo.index do |stage|
+    # add the new file to the staging index
+    stage.add("new.txt")
 
-      File.open("#{repo.workdir}something.text", "w") { |f| f << "hello world!" }
-      index.add "something.text"
+    File.open("#{path}/new.txt", "a") do |io|
+      io.print "Goodbye.\n"
+    end
 
-      Grits::Commit.create(repo,
-         author: author,
-         message: "Hello World",
-         committer: committer,
-         parents: [repo.last_commit.sha],
-         tree: index.tree,
-         update_ref: "HEAD"
-      ) do |commit|
-         puts commit.message
+    # diff the changes
+    stage.diff_workdir do |diff|
+      changes = diff.lines.map { |line| { line.hunk.header, line.content } }
+      puts changes # => [{"@@ -1 +1,2 @@\n", "Hello Grits.\n"}, {"@@ -1 +1,2 @@\n", "Goodbye.\n"}]
+    end
+
+    # Write the index to a tree and yield it for commit
+    stage.write_tree do |tree|
+      repo.commit_at("HEAD") do |parent|
+        committer = author = { 
+          email: "sean@skinnyjames.net", 
+          name: "Sean Gregory", 
+          time: Time.utc 
+        }
+
+        tree.commit(
+          author: author,
+          message: "Hello World",
+          committer: committer,
+          parents: [parent],
+          update_ref: "HEAD"
+        ) do |commit|
+          puts commit.message # => "Hello World"
+        end
       end
-   end
+    end
+  end
 end
-
-
 ```
 
 ## Development
