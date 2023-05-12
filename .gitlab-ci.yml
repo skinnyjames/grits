@@ -19,12 +19,17 @@ spec:
     - crystal spec
 
 pages:
-  image: "crystallang/crystal:latest"
-  stage: deploy
+  image: crystallang/crystal:latest
+  needs:
+    - spec
   script:
-    - crystal docs -o public src/grits.cr
+    - apt-get update -y
+    - apt-get install -y software-properties-common
+    - add-apt-repository ppa:deadsnakes/ppa
+    - apt-get install -y python3.8 python3.8-venv
+    - make build
   artifacts:
     paths:
       - public
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"

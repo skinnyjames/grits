@@ -40,16 +40,9 @@ module Grits
   struct Commit
     include Mixins::Pointable
 
-    alias SignatureTuple = { name: String, email: String, time: Time }
+    getter :repo
 
-    def self.create(repo : Grits::Repo, **args, &block)
-      commit = create(repo, **args)
-      begin
-        yield commit
-      ensure
-        commit.free
-      end
-    end
+    alias SignatureTuple = { name: String, email: String, time: Time }
 
     def self.create(
       repo : Grits::Repo,
@@ -57,37 +50,38 @@ module Grits
       message : String,
       author : SignatureTuple,
       committer : SignatureTuple,
-      parents : Array(String),
+      parents : Array(Commit),
       tree : Grits::Tree,
       encoding : String = "UTF-8",
-      update_ref : String | Reference
+      update_ref : String | Reference,
+      &
     )
-
       author_signature = Signature.from_tuple(author)
       committer_signature = author == committer ? author_signature : Signature.from_tuple(committer)
 
       parent_size = parents.size.to_u64
-      parent_refs = parents.map do |id|
-        repo.lookup_commit(id).to_unsafe
-      end
+      parent_refs = parents.map(&.to_unsafe)
 
       LibGit.commit_create(out commit_id, repo.to_unsafe, update_ref, author_signature.to_unsafe, committer_signature.to_unsafe, encoding, message, tree.to_unsafe, parent_size, parent_refs)
       
       oid = Oid.new(commit_id)
-      commit = repo.lookup_commit_by_oid(oid)
-
+      commit = lookup(repo, oid)
       author_signature.free
       committer_signature.free unless author == committer
 
-      commit
+      begin
+        yield(commit)
+      ensure
+        commit.free    
+      end
     end
 
     def self.lookup(repo : Repo, id : Oid)
-      Error.giterr LibGit.commit_lookup(out commit, repo.to_unsafe, id.to_unsafe), "Cannot lookup commit"
-      new(commit)
+      Error.giterr LibGit.commit_lookup(out commit, repo.to_unsafe, id.to_unsafe_ptr), "Cannot lookup commit"
+      new(commit, repo)
     end
 
-    def initialize(@raw : LibGit::Commit); end
+    def initialize(@raw : LibGit::Commit, @repo : Grits::Repo); end
 
     def message
       String.new LibGit.commit_message(to_unsafe)
@@ -101,13 +95,17 @@ module Grits
       Signature.new(LibGit.commit_committer(to_unsafe))
     end
 
-    def tree
-      Error.giterr LibGit.commit_tree(out tree, to_unsafe), "can't find tree"
-      Tree.new(tree)
+    def tree(& : Grits::Tree ->)
+      tree = Tree.from_commit(self)
+      begin
+        yield(tree)
+      ensure
+        tree.free
+      end
     end
 
     def tree_id
-      Oid.new LibGit.commit_tree_id(to_unsafe)
+      Oid.new(LibGit.commit_tree_id(to_unsafe).value)
     end
 
     def sha

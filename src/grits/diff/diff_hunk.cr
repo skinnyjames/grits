@@ -12,7 +12,8 @@ module Grits
 
     def data
       header = String.build do |io|
-        io.write(@raw.value.header.to_slice)
+        slice = Slice(UInt8).new(@raw.value.header.to_unsafe, @raw.value.header_len)
+        io.write(slice)
       end
 
 

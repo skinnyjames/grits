@@ -20,7 +20,7 @@ module Grits
 
         String.build do |io|
           io.write char_ptr.to_slice(size)
-          io << '\0'
+          io.write Slice(UInt8).new(0)
         end
       end
     end

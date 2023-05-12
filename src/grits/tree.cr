@@ -8,6 +8,13 @@ module Grits
       new(tree, repo)
     end
 
+    def self.from_commit(commit : Grits::Commit)
+      Error.giterr LibGit.commit_tree(out tree, commit.to_unsafe), "Cannot get tree from commit"
+      new(tree, commit.repo)
+    end
+
+    getter :repo
+
     def initialize(@raw : LibGit::Tree, @repo : Repo); end
 
     def diff_workdir(options = DiffOptions.default, &)
@@ -20,8 +27,32 @@ module Grits
       end
     end
 
+    def commit(
+      *,
+      message : String,
+      author : Commit::SignatureTuple,
+      committer : Commit::SignatureTuple,
+      encoding : String = "UTF-8",
+      parents : Array(Commit),
+      update_ref : String | Reference,
+      &
+    )
+      Grits::Commit.create(
+        repo,
+        message: message,
+        author: author,
+        committer: committer,
+        encoding: encoding,
+        parents: parents,
+        tree: self,
+        update_ref: update_ref
+      ) do |commit|
+        yield(commit)
+      end
+    end
+
     def id : Oid
-      Grits.get_tree_id(to_unsafe)
+      Grits.get_tree_id(self)
     end
 
     def free

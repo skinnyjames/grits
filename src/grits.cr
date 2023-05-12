@@ -10,6 +10,6 @@ module Grits
   LibGit.init
 
   def self.get_tree_id(tree : Grits::Tree)
-    Oid.new(LibGit.tree_id(tree_id))
+    Oid.new(LibGit.tree_id(tree.to_unsafe).value)
   end
 end
