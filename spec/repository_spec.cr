@@ -135,7 +135,7 @@ describe Grits::Repo do
     end
 
     it "opens with extended behavior" do
-      flags = [Grits::Repo::OpenTypes::FromEnv]
+      flags = [Grits::OpenRepoType::FromEnv]
 
       Fixture.init_repo(make: true) do |init, path|
         repo = Grits::Repo.open_ext(path, flags)
