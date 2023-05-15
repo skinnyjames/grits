@@ -2,6 +2,13 @@
 lib LibGit
   type Index = Void*
 
+  enum IndexAddOptionT
+    Default = 0
+    Force = (1 << 0)
+    DisablePathspecMatch = (1 << 1)
+    CheckPathspec = (1 << 2)
+  end
+
   struct IndexTime
     seconds : Int32
     nanoseconds : UInt32
@@ -32,10 +39,12 @@ lib LibGit
     recieved_bytes : LibC::SizeT
   end
 
+  alias IndexMatchedPathCb = (LibC::Char*, LibC::Char*, Void* -> LibC::Int)
   alias IndexerProgressCb = (IndexerProgress*, Void* -> LibC::Int)
 
   # operations
   fun index_add = git_index_add(index: Index, entry : IndexEntry) : LibC::Int
+  fun index_add_all = git_index_add_all(index : Index, pathspec : LibGit::Strarray*, flags : LibC::UInt, callback : IndexMatchedPathCb, payload : Void*) : LibC::Int
   fun index_add_bypath = git_index_add_bypath(index : Index, path : LibC::Char*) : LibC::Int
   fun index_write = git_index_write(index : Index) : LibC::Int
 

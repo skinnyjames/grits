@@ -1,11 +1,19 @@
 module Grits
+  alias IndexAddOption = LibGit::IndexAddOptionT
+
   class Index
     include Mixins::Pointable
+    include Mixins::Util  
 
     def initialize(@raw : LibGit::Index, @repo : Grits::Repo); end
 
     def add(path : String) : Void
       add_file(path)
+      write
+    end
+
+    def add(paths : Array(String), flags : Array(IndexAddOption) = [] of IndexAddOption, &notification_callback : String, String -> Bool?)
+      add_files(paths, flags, &notification_callback)
       write
     end
 
@@ -22,6 +30,24 @@ module Grits
       diff = diff_workdir(options)
       yield(diff)
       diff.free
+    end
+
+    def add_files(path_expressions : Array(String), flags : Array(IndexAddOption) = [] of IndexAddOption, &notification : String, String -> Bool?)
+      pathspec = convert_to_strarray(path_expressions)
+      callback = ->(path : LibC::Char*, matching : LibC::Char*, payload : Void*) do
+        notify_cb = Box(Proc(String, String, Bool?)).unbox(payload)
+        path = String.new(path)
+        match = String.new(matching)
+
+        res = notify_cb.call(path, match)
+        return 0 if res == true
+        return 1 if res == false
+        return -1
+      end
+
+      payload = Box(Proc(String, String, Bool?)).box(notification)
+
+      Error.giterr LibGit.index_add_all(to_unsafe, pointerof(pathspec), flag_value(flags), callback, payload), "Add files failed"
     end
 
     def add_file(path : String) : Void
