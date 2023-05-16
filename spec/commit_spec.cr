@@ -44,7 +44,7 @@ describe Grits::Commit do
       end
     end
 
-    it "readme example", focus: true do
+    it "readme example" do
       Fixture.clone_default_http do |repo, path|
         # create a new untracked file
         File.write("#{path}/new.txt", "Hello Grits.\n")
