@@ -1,3 +1,6 @@
-* [Introduction](README.md)
-  * [Repositories](repositories/README.md)
+* [Grits](README.md)
+    * [Managing repositories](repositories/README.md)
+    * [Staging changes](repositories/grits_index.md)
+    * [Diffing](repositories/diff.md)
+    * [Committing](repositories/commit.md)
 * [Library API](Grits/)

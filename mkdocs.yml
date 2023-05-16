@@ -4,6 +4,9 @@ repo_url: https://gitlab.com/skinnyjames/grits
 edit_uri: https://gitlab.com/skinnyjames/grits/-/blob/main/docs
 site_url: https://skinnyjames.gitlab.io/grits
 
+nav:
+  - Library API: Grits/index.md
+
 theme:
   name: material
   palette:

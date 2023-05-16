@@ -1,4 +1,4 @@
-# Grits
+# Introduction
 
 A Crystal library for programatic git interactions.  Built over [libgit2](https://libgit2.org/).
 
