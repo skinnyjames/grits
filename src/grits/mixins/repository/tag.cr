@@ -1,0 +1,143 @@
+module Grits
+  # @param <String> the tag name.
+  # @param <Grits::Oid> the tag id
+  # @return <Bool> abort the iteration?
+  alias EachTagInfo = (String, Grits::Oid -> Bool)
+  record TagData, name : String, sha : String, message : String
+  
+  struct TagInfo
+    getter :name, :oid, :repo
+
+    def initialize(@repo : Repo, @name : String, @oid : Grits::Oid); end
+
+    def valid?
+      Grits::Tag.valid_name?(name)
+    end
+
+    def resolve(&block : Tag | Commit ->)
+      if annotated?
+        as_tag do |tag|
+          block.call(tag)
+        end
+      else
+        as_commit do |commit|
+          block.call(commit)
+        end
+      end
+    end
+
+    def annotated?
+      obj = oid.object(repo)
+      annotated = obj.tag?
+      obj.free
+      annotated
+    end
+
+    def lightweight?
+      obj = oid.object(repo)
+      light = obj.commit?
+      obj.free
+      light      
+    end
+
+    def as_tag(&block : Tag ->)
+      tag = Tag.lookup(repo, oid, name: name)
+      begin
+        block.call(tag)
+      ensure
+        tag.free
+      end
+    end
+
+    def as_commit(&block : Commit ->)
+      commit = Commit.lookup(repo, oid)
+      begin
+        block.call(commit)
+      ensure
+        commit.free
+      end
+    end
+  end
+
+  class TagForeachCallbacks < CallbacksState
+    define_callback EachTagInfo, tag_info
+  end
+
+  struct TagIterator
+    include Mixins::Callbacks
+
+    @callbacks_state = TagForeachCallbacks.new
+    @tag_info_cb : LibGit::TagForeachCb = -> (name : LibC::Char*, oidref : LibGit::Oid*, payload : Void*) {0}
+
+    define_callback tag_info, EachTagInfo, callbacks_state
+
+    def execute(repo : Grits::Repo)
+      payload = Box(TagForeachCallbacks).box(@callbacks_state)
+
+      add_callbacks
+
+      Error.giterr(LibGit.tag_foreach(repo.to_unsafe, @tag_info_cb, payload), "Could not iterate tags")
+    end
+
+    protected def add_callbacks
+      @callbacks_state.callbacks.each do |cb|
+        case cb
+        when :tag_info
+          @tag_info_cb = -> (name : LibC::Char*, oidref : LibGit::Oid*, payload : Void*) do
+            if block = Box(TagForeachCallbacks).unbox(payload).on_tag_info
+
+              tag_name = String.new(name)
+              oid = Grits::Oid.new(oidref.value)
+
+              res = block.call(tag_name, oid)
+              return res ? 0 : 1
+            else
+              0
+            end
+          end
+        end
+      end
+    end
+  end
+
+  module Mixins
+    module Repository
+      module Tag
+        def tags
+          tag_datas = [] of TagData | CommitData
+          each_tag do |tag_or_commit|
+            tag_datas << tag_or_commit.data
+            true
+          end
+
+          tag_datas
+        end
+
+        def each_tag(&block : Grits::Tag | Grits::Commit -> Bool)
+          each_tag_info do |info|
+            # skip if tag isn't annotated
+            if info.valid?
+              info.resolve do |tag_or_commit|
+                block.call(tag_or_commit)
+              end
+            end
+
+            true
+          end
+        end
+
+        def each_tag_info(&block : Grits::TagInfo -> Bool)
+          datas = [] of Tuple(String, Oid)
+
+          iterator = TagIterator.new
+          iterator.on_tag_info do |tag_name, oid|
+            info = Grits::TagInfo.new(self, tag_name, oid)
+            block.call(info)
+          end
+
+          iterator.execute(self)
+        end
+      end
+    end
+  end
+end

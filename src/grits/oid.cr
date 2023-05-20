@@ -18,6 +18,10 @@ module Grits
         new(strn_value)
       end
     end
+    
+    def object(repo : Repo, type = Object::Type::Any)
+      Grits::Object.lookup(repo, self, type)
+    end
 
     # Return the SHA hash for this Oid
     def to_s(io)

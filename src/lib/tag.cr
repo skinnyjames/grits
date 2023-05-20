@@ -1,7 +1,10 @@
 @[Link(ldflags: "-l:libgit2.so.1.3")]
 lib LibGit
   type Tag = Void*
+  alias TagForeachCb = (LibC::Char*, Oid*, Void* -> LibC::Int)
 
+  fun tag_foreach = git_tag_foreach(repo : Repository, callback : TagForeachCb, payload : Void*) : LibC::Int
+  fun tag_name_is_valid = git_tag_name_is_valid(valid : LibC::Int*, name : LibC::Char*) : LibC::Int
   fun tag_lookup = git_tag_lookup(out : Tag*, repo : Repository, id : Oid*) : LibC::Int
   fun tag_lookup_prefix = git_tag_lookup_prefix(out : Tag*, repo : Repository, id : Oid*, len : LibC::SizeT) : LibC::Int
   fun tag_free = git_tag_free(tag : Tag)

@@ -5,7 +5,7 @@ module Grits
     include Mixins::Pointable
 
     def self.lookup(repo : Repo, oid : Oid, type : Type)
-      Error.giterr LibGit.object_lookup(out obj, repo.to_unsafe, oid.to_unsafe, type), "Cannot lookup object"
+      Error.giterr LibGit.object_lookup(out obj, repo.to_unsafe, oid.to_unsafe_ptr, type), "Cannot lookup object"
       new(obj)
     end
 
@@ -23,6 +23,22 @@ module Grits
       type == Type::Commit
     end
 
+    def blob?
+      type == Type::Commit
+    end
+
+    def tag?
+      type == Type::Tag
+    end
+
+    def ofs_delta?
+      type == Type::OfsDelta
+    end
+
+    def ref_delta?
+      type == Type::RefDelta
+    end
+
     def type
       LibGit.object_type(to_unsafe)
     end
@@ -32,7 +48,7 @@ module Grits
     end
 
     def free
-      LibGit.object_free(pointerof(to_unsafe))
+      LibGit.object_free(to_unsafe)
     end
 
   end

@@ -1,5 +1,7 @@
 module Grits
-  struct Signature
+  record SignatureData, name : String, email : String, time : Time
+
+  class Signature
     include Mixins::Pointable
 
     def self.make(name : String, email : String, time : Time)
@@ -31,11 +33,20 @@ module Grits
       Time.unix to_unsafe.value.when.time
     end
 
+    def data
+      SignatureData.new(name: name, email: email, time: time)
+    end
+
     def free
       LibGit.signature_free(to_unsafe)
     end
+
+    def finalize
+      free
+    end
   end
 
+  record CommitData, message : String, author : SignatureData?, committer : SignatureData?, sha : String
 
   struct Commit
     include Mixins::Pointable
@@ -102,6 +113,10 @@ module Grits
       ensure
         tree.free
       end
+    end
+
+    def data
+      CommitData.new(message: message, author: author.data, committer: committer.data, sha: sha)
     end
 
     def tree_id
