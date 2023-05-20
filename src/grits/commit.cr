@@ -53,6 +53,9 @@ module Grits
 
     getter :repo
 
+    @author : Signature?
+    @committer : Signature?
+
     alias SignatureTuple = { name: String, email: String, time: Time }
 
     def self.create(
@@ -98,12 +101,12 @@ module Grits
       String.new LibGit.commit_message(to_unsafe)
     end
 
-    def author
-      Signature.new(LibGit.commit_author(to_unsafe))
+    def author : Signature
+      @author ||= Signature.new(LibGit.commit_author(to_unsafe))
     end
 
-    def committer
-      Signature.new(LibGit.commit_committer(to_unsafe))
+    def committer : Signature
+      @committer ||= Signature.new(LibGit.commit_committer(to_unsafe))
     end
 
     def tree(& : Grits::Tree ->)

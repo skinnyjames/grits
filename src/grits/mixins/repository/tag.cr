@@ -14,14 +14,18 @@ module Grits
       Grits::Tag.valid_name?(name)
     end
 
-    def resolve(&block : Tag | Commit ->)
+    def resolve(&block : Tag | Commit | Tree ->)
       if annotated?
         as_tag do |tag|
           block.call(tag)
         end
-      else
+      elsif lightweight?
         as_commit do |commit|
           block.call(commit)
+        end
+      elsif tree?
+        as_tree do |tree|
+          block.call(tree)
         end
       end
     end
@@ -40,6 +44,13 @@ module Grits
       light      
     end
 
+    def tree?
+      obj = oid.object(repo)
+      tree = obj.tree?
+      obj.free
+      tree      
+    end
+
     def as_tag(&block : Tag ->)
       tag = Tag.lookup(repo, oid, name: name)
       begin
@@ -55,6 +66,15 @@ module Grits
         block.call(commit)
       ensure
         commit.free
+      end
+    end
+    
+    def as_tree(&block : Tree ->)
+      tree = Tree.lookup(repo, oid.to_unsafe)
+      begin
+        block.call(tree)
+      ensure
+        tree.free
       end
     end
   end
@@ -104,16 +124,16 @@ module Grits
     module Repository
       module Tag
         def tags
-          tag_datas = [] of TagData | CommitData
-          each_tag do |tag_or_commit|
-            tag_datas << tag_or_commit.data
+          tag_datas = [] of TagData | CommitData | TreeData
+          each_tag do |tag_or_commit_or_tree|
+            tag_datas << tag_or_commit_or_tree.data
             true
           end
 
           tag_datas
         end
 
-        def each_tag(&block : Grits::Tag | Grits::Commit -> Bool)
+        def each_tag(&block : Grits::Tag | Grits::Commit | Grits::Tree -> Bool)
           each_tag_info do |info|
             # skip if tag isn't annotated
             if info.valid?
