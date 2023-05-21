@@ -146,6 +146,20 @@ module Grits
           end
         end
 
+        def tag_list : Array(String)
+          strarray = LibGit::Strarray.new
+          ptr = pointerof(strarray)
+
+          Error.giterr(LibGit.tag_list(ptr, to_unsafe), "Can't fetch tag list")
+
+          slice = strarray.strings.to_slice(strarray.count)
+          strings = slice.map { |s| String.new(s) }.to_a
+
+          LibGit.strarray_free(ptr)
+
+          strings.sort
+        end
+
         def each_tag_info(&block : Grits::TagInfo -> Bool)
           datas = [] of Tuple(String, Oid)
 
