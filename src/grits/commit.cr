@@ -40,10 +40,6 @@ module Grits
     def free
       LibGit.signature_free(to_unsafe)
     end
-
-    def finalize
-      free
-    end
   end
 
   record CommitData, message : String, author : SignatureData?, committer : SignatureData?, sha : String
@@ -136,6 +132,9 @@ module Grits
     end
 
     def free
+      @committer.try(&.free)
+      @author.try(&.free)
+
       LibGit.commit_free(to_unsafe)
     end
   end
