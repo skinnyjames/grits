@@ -7,6 +7,11 @@ lib LibGit
     dst : Oid
   end
 
+  struct PushUpdate
+    repo : Repository
+    pb : PackBuilder*
+  end
+
   alias PushTransferProgressCb = (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int)
   alias PushUpdateReferenceCb = (LibC::Char*, LibC::Char*, Void* -> LibC::Int)
   alias PushNegotiationCb = (PushUpdate**, LibC::SizeT, Void* -> LibC::Int)

@@ -12,6 +12,7 @@ module Grits
     alias PushUpdateReferenceCb = (String, String -> Bool?)
     alias PushNegotiation = (Wrappers::PushUpdate, LibC::SizeT -> Void)
     alias ResolveUrlCb = (UrlResolver -> Int32?)
+    alias TransportCb = (Transport -> Bool)
 
     struct UrlResolver
       def initialize(@buffer : LibGit::Buf*, @url : LibC::Char*, @direction : LibC::Int); end
@@ -47,6 +48,7 @@ module Grits
       define_callback PushUpdateReferenceCb, push_update_reference
       define_callback PushNegotiation, push_negotiation
       define_callback ResolveUrlCb, resolve_url
+      define_callback TransportCb, transport
     end
 
     struct Callbacks
@@ -69,6 +71,7 @@ module Grits
       define_callback push_update_reference, PushUpdateReferenceCb, callbacks_state
       define_callback push_negotiation, PushNegotiation, callbacks_state
       define_callback resolve_url, ResolveUrlCb, callbacks_state
+      define_callback transport, TransportCb, callbacks_state
 
       def empty?
         @callbacks_state.empty?
@@ -153,6 +156,15 @@ module Grits
               resolver = UrlResolver.new(buffer, url, direction)
               ret = callback.try { |cb| cb.call(resolver) }
               ret.nil? ? LibGit::ErrorCode::Passthrough.to_i32 : ret
+            end
+          when :transport
+            @raw.transport = ->(transport : LibGit::Transport*, remote : LibGit::Remote, payload : Void*) do
+              callback = Box(CallbacksState).unbox(payload).on_transport
+              remoter = Grits::Remote.new(remote)
+              transporter = Grits::Transport.new(remoter, transport.value)
+
+              ret = callback.try { |cb| cb.call(transporter) }
+              ret ? 0 : 1
             end
           end
         end
