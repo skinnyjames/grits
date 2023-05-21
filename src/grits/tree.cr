@@ -1,4 +1,5 @@
 module Grits
+  record TreeData, sha : String
   class Tree
     include Mixins::Pointable
     getter :repo
@@ -25,6 +26,10 @@ module Grits
       ensure
         grits_diff.free
       end
+    end
+
+    def data
+      TreeData.new(sha: id.to_s)
     end
 
     def commit(

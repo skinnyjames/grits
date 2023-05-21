@@ -5,11 +5,17 @@ module Grits
     include Mixins::Pointable
     include Mixins::Wrapper
 
+    def self.lookup(repo : Repo, name : String)
+      Error.giterr(LibGit.reference_lookup(out reference, repo.to_unsafe, name.to_unsafe), "Cannot locate reference #{name}")
+
+      new(repo, reference)
+    end
+
     def self.name_valid?(name)
       LibGit.reference_is_valid_name(name) == 1
     end
 
-    def initialize(@raw : LibGit::Reference); end
+    def initialize(@repo : Grits::Repo, @raw : LibGit::Reference); end
 
     def name
       String.new(LibGit.reference_name(to_unsafe))

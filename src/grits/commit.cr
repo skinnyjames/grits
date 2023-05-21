@@ -1,5 +1,7 @@
 module Grits
-  struct Signature
+  record SignatureData, name : String, email : String, time : Time
+
+  class Signature
     include Mixins::Pointable
 
     def self.make(name : String, email : String, time : Time)
@@ -31,16 +33,24 @@ module Grits
       Time.unix to_unsafe.value.when.time
     end
 
+    def data
+      SignatureData.new(name: name, email: email, time: time)
+    end
+
     def free
       LibGit.signature_free(to_unsafe)
     end
   end
 
+  record CommitData, message : String, author : SignatureData?, committer : SignatureData?, sha : String
 
   struct Commit
     include Mixins::Pointable
 
     getter :repo
+
+    @author : Signature?
+    @committer : Signature?
 
     alias SignatureTuple = { name: String, email: String, time: Time }
 
@@ -87,12 +97,12 @@ module Grits
       String.new LibGit.commit_message(to_unsafe)
     end
 
-    def author
-      Signature.new(LibGit.commit_author(to_unsafe))
+    def author : Signature
+      @author ||= Signature.new(LibGit.commit_author(to_unsafe))
     end
 
-    def committer
-      Signature.new(LibGit.commit_committer(to_unsafe))
+    def committer : Signature
+      @committer ||= Signature.new(LibGit.commit_committer(to_unsafe))
     end
 
     def tree(& : Grits::Tree ->)
@@ -102,6 +112,10 @@ module Grits
       ensure
         tree.free
       end
+    end
+
+    def data
+      CommitData.new(message: message, author: author.data, committer: committer.data, sha: sha)
     end
 
     def tree_id
@@ -118,6 +132,9 @@ module Grits
     end
 
     def free
+      @committer.try(&.free)
+      @author.try(&.free)
+
       LibGit.commit_free(to_unsafe)
     end
   end

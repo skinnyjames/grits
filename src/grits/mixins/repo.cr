@@ -7,6 +7,7 @@ module Grits
     module Repo
       include Repository::Tree
       include Repository::Commit
+      include Repository::Tag
 
       alias Item = LibGit::RepositoryItemT
       alias EachFetchHeadCb = (String, String, Oid, Bool -> Bool?)
@@ -52,7 +53,7 @@ module Grits
 
       def head?
         Error.giterr LibGit.repository_head(out ref, to_unsafe), "Cannot fetch repository head"
-        return Reference.new(ref) unless ref.null?
+        return Reference.new(self, ref) unless ref.null?
       end
 
       def head_unborn?
@@ -89,7 +90,7 @@ module Grits
         return nil unless worktree?
 
         Error.giterr LibGit.repository_head_for_worktree(out ref, to_unsafe, worktree), "Can't fetch head for worktree"
-        return Reference.new(ref)
+        return Reference.new(self, ref)
       end
 
       def worktree_head_detached?(worktree : String)
@@ -142,11 +143,11 @@ module Grits
           end
         else
           begin
-              Error.giterr LibGit.repository_config(out cfg, to_unsafe), "Cannot get config"
-              config = Config.new(cfg)
-              yield config
-            ensure
-              config.free if config
+            Error.giterr LibGit.repository_config(out cfg, to_unsafe), "Cannot get config"
+            config = Config.new(cfg)
+            yield config
+          ensure
+            config.free if config
           end
         end
       end
@@ -227,7 +228,6 @@ module Grits
         oid = Oid.from_sha(sha)
         lookup_commit_by_oid(oid)
       end
-
 
       def item_path(item : Item)
         b = Buffer.create
