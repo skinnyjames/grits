@@ -1,4 +1,4 @@
-require "./lib/*"
+require "./lib/**"
 require "./grits/mixins/*"
 require "./grits/wrappers/*"
 require "./grits/remotable/*"

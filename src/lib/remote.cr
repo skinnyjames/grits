@@ -28,12 +28,18 @@ lib LibGit
     Error
   end
 
-  struct RemoteHead
-    local : LibC::Int
-    oid : Oid
-    loid : Oid
-    name : LibC::Char*
-    symref_target : LibC::Char*
+  enum RemoteRedirectT
+    None = (1 << 0)
+    Initial = (1 << 1)
+    All = (1 << 2)
+  end
+
+  struct RemoteConnectOptions
+    version : LibC::UInt
+    callbacks : RemoteCallbacks
+    proxy_opts : ProxyOptions
+    follow_redirects : RemoteRedirectT
+    custom_headers : Strarray
   end
 
   struct RemoteCallbacks

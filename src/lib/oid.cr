@@ -11,6 +11,11 @@ lib LibGit
     id : UInt8[20]
   end
 
+  enum OidT
+    Sha1 = 1
+    Sha256 = 2 # only available in expreimental sha256
+  end
+
   fun oid_fromstr = git_oid_fromstr(out : Oid*, str : LibC::Char*) : LibC::Int
   fun oid_fromstrp = git_oid_fromstrp(out : Oid*, str : LibC::Char*) : LibC::Int
   fun oid_fromstrn = git_oid_fromstrn(out : Oid*, str : LibC::Char*, length : LibC::SizeT) : LibC::Int

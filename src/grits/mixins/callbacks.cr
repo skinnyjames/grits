@@ -8,6 +8,8 @@ module Grits
       macro define_callback(method, block_type, var)
         def on_{{ method }}(&block : {{ block_type }})
           @{{ var }}.on_{{ method }}(&block)
+
+          self # see how this works
         end
       end
     end

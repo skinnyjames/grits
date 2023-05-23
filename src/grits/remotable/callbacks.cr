@@ -12,7 +12,7 @@ module Grits
     alias PushUpdateReferenceCb = (String, String -> Bool?)
     alias PushNegotiation = (Wrappers::PushUpdate, LibC::SizeT -> Void)
     alias ResolveUrlCb = (UrlResolver -> Int32?)
-    alias TransportCb = (Transport -> Bool)
+    alias TransportCb = (Transport, Remote -> Bool)
 
     struct UrlResolver
       def initialize(@buffer : LibGit::Buf*, @url : LibC::Char*, @direction : LibC::Int); end
@@ -161,9 +161,9 @@ module Grits
             @raw.transport = ->(transport : LibGit::Transport*, remote : LibGit::Remote, payload : Void*) do
               callback = Box(CallbacksState).unbox(payload).on_transport
               remoter = Grits::Remote.new(remote)
-              transporter = Grits::Transport.new(remoter, transport.value)
+              transporter = Grits::Transport.new(transport)
 
-              ret = callback.try { |cb| cb.call(transporter) }
+              ret = callback.try { |cb| cb.call(transporter, remoter) }
               ret ? 0 : 1
             end
           end

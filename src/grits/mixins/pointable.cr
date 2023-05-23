@@ -9,6 +9,10 @@ module Grits
         pointerof(@raw)
       end
 
+      protected def to_unsafe_value
+        @raw.value
+      end
+
       protected def copy_to_string(char_ptr) : String?
         return nil if char_ptr.null?
 
