@@ -14,10 +14,29 @@ module Grits
     def initialize(@raw : LibGit::SmartSubtransport*); end
   end
 
-  struct SubtransportStream
+  class SubtransportStream < IO
     include Mixins::Pointable
 
-    def initialize(@raw : LibGit::SmartSubtransportStream*, buffer : LibC::Char*, size : LibC::SizeT, bytes_read : LibC::SizeT*?); end
+    def initialize(@raw : LibGit::SmartSubtransportStream*, @buffer : LibC::Char*, @size : LibC::SizeT, @bytes_read : LibC::SizeT*? = nil)
+      @slice = @buffer.to_slice(@size)
+    end
+
+    def read(slice : Bytes)
+      raise "Cannot read from writable stream" if @bytes_read.nil?
+
+      slice.size.times { |i| slice[i] = @slice[i] }
+
+      @slice += slice.size
+      @bytes_read.value = slice.size
+      @bytes_read.value
+    end
+
+    def write(slice : Bytes) : Nil
+      raise "Cannot write to readable stream" unless @bytes_read.nil?
+
+      slice.size.times { |i| @slice[i] = slice[i] }
+      @slice += slice.size
+    end
   end
 
   struct Transport

@@ -30,7 +30,7 @@ module Grits
     end
 
     def headers=(value : Hash(String, String))
-      # need to convert to strarray
+      # need to convert to strarray, not sure wh
     end
 
     protected def add_callbacks
