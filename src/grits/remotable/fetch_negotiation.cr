@@ -2,7 +2,7 @@ module Grits
   struct RemoteHead
     include Mixins::Pointable
     
-    def intialize(@raw : LibGit::RemoteHead*); end
+    def initialize(@raw : LibGit::RemoteHead*); end
 
     def local? : Bool
       to_unsafe_value.local == 1
@@ -28,7 +28,7 @@ module Grits
   struct FetchNegotiation
     include Mixins::Pointable
     include Mixins::Wrapper    
-    def intialize(@raw : LibGit::FetchNegotiation*); end
+    def initialize(@raw : LibGit::FetchNegotiation*); end
 
     def remote_heads : Array(RemoteHead)
       slice = to_unsafe_value.refs.to_slice(to_unsafe_value.refs_len)

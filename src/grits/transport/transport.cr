@@ -1,15 +1,6 @@
 module Grits
   struct Subtransport
     include Mixins::Pointable
-
-    def self.from_http
-    
-    end
-
-    def self.from_git
-    end
-
-
   
     def initialize(@raw : LibGit::SmartSubtransport*); end
   end
@@ -17,25 +8,48 @@ module Grits
   class SubtransportStream < IO
     include Mixins::Pointable
 
+    getter :bytes_read
+
     def initialize(@raw : LibGit::SmartSubtransportStream*, @buffer : LibC::Char*, @size : LibC::SizeT, @bytes_read : LibC::SizeT*? = nil)
       @slice = @buffer.to_slice(@size)
     end
 
+    def trigger_write(io)
+      io.each_byte do |byte|
+        ptr = pointerof(byte)
+        @raw.value.write.call(@raw, ptr, 1_u64)
+      end
+    end
+
     def read(slice : Bytes)
-      raise "Cannot read from writable stream" if @bytes_read.nil?
+      #raise "Cannot read from writable stream" if @bytes_read.nil?
+      fread = 0
 
-      slice.size.times { |i| slice[i] = @slice[i] }
+      slice.size.times do |i|
+        if @slice[i]?
+          fread += 1
+          slice[i] = @slice[i]
+        end
+      end
 
-      @slice += slice.size
-      @bytes_read.value = slice.size
-      @bytes_read.value
+      @slice += fread
+      @bytes_read.try {|r| r.value = fread.to_u64 }
+      fread
     end
 
     def write(slice : Bytes) : Nil
-      raise "Cannot write to readable stream" unless @bytes_read.nil?
+      #raise "Cannot write to readable stream" unless @bytes_read.nil?
 
-      slice.size.times { |i| @slice[i] = slice[i] }
+      slice.size.times do |i| 
+        if slice[i]?
+          @slice[i] = slice[i]
+        end
+      
+      end
+
       @slice += slice.size
+
+      @bytes_read.try {|r| r.value = slice.size.to_u64 }
     end
   end
 

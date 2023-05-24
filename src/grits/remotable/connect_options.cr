@@ -17,7 +17,7 @@ module Grits
     define_callback resolve_url, Remotable::ResolveUrlCb, callbacks
 
     def initialize(@raw : LibGit::RemoteConnectOptions*)
-      @callbacks = Remotable::Callbacks.new(to_unsafe.callbacks)
+      @callbacks = Remotable::Callbacks.new(to_unsafe.value.callbacks)
     end
 
     def configure_proxy(&block : (ProxyOptions -> ProxyOptions))

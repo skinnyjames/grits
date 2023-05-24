@@ -89,6 +89,8 @@ class Fixture
 
   def self.clone_repo(url, dir, *args, &block)
     path = "#{__DIR__}/tmp/#{dir}"
+    FileUtils.rm_rf(path)
+
     begin
       Grits::Repo.clone(url, path, *args) do |repo|
         yield repo, path

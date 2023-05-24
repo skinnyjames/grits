@@ -60,6 +60,7 @@ lib LibGit
     resolve_url : (Buf*, LibC::Char*, LibC::Int, Void* -> LibC::Int) #done
   end
 
+  fun remote_connect_options_init = git_remote_connect_options_init(opts : RemoteConnectOptions*, version : LibC::UInt) : LibC::Int
   fun remote_update_tips = git_remote_update_tips(remote : Remote, callbacks : RemoteCallbacks, update_fetchhead : LibC::Int, download_tags : RemoteAutoTagOptionT, reflog_message : LibC::Char*) : LibC::Int
   fun remote_create = git_remote_create(out : Remote*, repo : Repository, name : LibC::Char*, url : LibC::Char*) : LibC::Int
   fun remote_create_with_fetchspec = git_remote_create_with_fetchspec(out : Remote*, repo : Repository, name : LibC::Char*, url : LibC::Char*, fetch : LibC::Char*) : LibC::Int
