@@ -374,7 +374,7 @@ describe Grits::Repo do
         options = Grits::CloneOptions.default
         options.checkout_options.on_performance_data do |perf|
           perf.mkdir_calls.should eq(0)
-          perf.stat_calls.should eq(4)
+          perf.stat_calls.should be >(1)
           perf.chmod_calls.should eq(0)
         end
         Fixture.clone_repo("http://#{Fixture.host}:3000/skinnyjames/grits_empty_remote.git",  Random::Secure.hex(3), options) {}

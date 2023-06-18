@@ -1,4 +1,8 @@
+{% if flag?(:darwin) %}
+@[Link("git2.1.3")]
+{% else %}
 @[Link(ldflags: "-l:libgit2.so.1.3")]
+{% end %}
 lib LibGit
   type Repository = Void*
   alias RepositoryCb = (Repository*, LibC::Char*, LibC::Int, Void* -> LibC::Int)
