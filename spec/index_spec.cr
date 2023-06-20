@@ -25,6 +25,31 @@ describe Grits::Index do
         end
       end
     end
+
+    it "clears committed files" do
+      repo_path = Fixture.tmp_path
+
+      Grits::Repo.init(repo_path) do |repo|
+        File.write("#{repo_path}/top", "content\n")
+
+        repo.index do |stage|
+          stage.add(["top"]) do |path, match|
+            true
+          end
+
+          File.open("#{repo_path}/top", "a") { |io| io.print "more\n" }
+        end
+      end
+
+      Grits::Repo.open(repo_path.not_nil!) do |repo|
+        repo.index do |stage|
+          stage.clear
+          stage.diff_workdir do |diff|
+            diff.lines.map(&.content).should eq([] of String)
+          end
+        end
+      end
+    end
   end
   
   describe "#add_files" do

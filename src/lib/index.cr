@@ -51,6 +51,7 @@ lib LibGit
   fun index_add_all = git_index_add_all(index : Index, pathspec : LibGit::Strarray*, flags : LibC::UInt, callback : IndexMatchedPathCb, payload : Void*) : LibC::Int
   fun index_add_bypath = git_index_add_bypath(index : Index, path : LibC::Char*) : LibC::Int
   fun index_write = git_index_write(index : Index) : LibC::Int
+  fun index_clear = git_index_clear(index : Index) : LibC::Int
 
   # lookups
   fun index_read_tree = git_index_read_tree(index : Index, tree : Tree*) : LibC::Int
