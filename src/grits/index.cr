@@ -59,6 +59,10 @@ module Grits
       true
     end
 
+    def clear : Nil
+      Error.giterr LibGit.index_clear(to_unsafe), "Index could not be cleared"
+    end
+
     def write_tree
       int = LibGit.index_write_tree(out tree_oid, to_unsafe)
       if int.zero?
