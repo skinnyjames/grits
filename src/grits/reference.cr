@@ -15,10 +15,17 @@ module Grits
       LibGit.reference_is_valid_name(name) == 1
     end
 
+    getter :repo
+
     def initialize(@repo : Grits::Repo, @raw : LibGit::Reference); end
 
     def name
       String.new(LibGit.reference_name(to_unsafe))
+    end
+
+    def id
+      Error.giterr(LibGit.reference_name_to_id(out id, repo, name), "Cannot get oid for #{name}")
+      Oid.new(id)
     end
 
     def type
