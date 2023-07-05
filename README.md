@@ -25,7 +25,7 @@ require "grits"
 dest = "#{__DIR__}/some_folder"
 
 Grits::Repo.clone(
-  "https://gitlab.com/skinnyjames/grits.git", 
+  "https://codeberg.org/skinnyjames/grits.git", 
   dest, 
   options
 ) do |repo|
@@ -87,17 +87,9 @@ Navigate to `http://127.0.0.1:3000`
 
 Login with `skinnyjames` / `password`
 
-## Contributing
-
-1. Fork it (<https://gitlab.com/skinnyjames/grits/-/forks/new>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Merge Request
-
 ## Contributors
 
-- [Sean Gregory](https://gitlab.com/skinnyjames) - creator and maintainer
+- [Sean Gregory](https://codeberg.org/skinnyjames) - creator and maintainer
 
 ## Thanks
 
