@@ -1,4 +1,4 @@
-# grits
+# grits [![status-badge](https://ci.skinnyjames.net/api/badges/skinnyjames/grits/status.svg)](https://ci.skinnyjames.net/skinnyjames/grits)
 
 Git library in progress for Crystal
 
