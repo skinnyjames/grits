@@ -11,4 +11,3 @@ pipeline:
       - chmod 700 spec/helpers/gitea/gitea
       - eval $(ssh-agent)
       - crystal spec
-  
