@@ -1,0 +1,14 @@
+services:
+  gitea:
+    image: skinnyjames/grits-gitea-fixture:latest
+
+pipeline:
+  test:
+    image: "skinnyjames/crystal-libgit2"
+    environment:
+      - CI=true
+    commands:
+      - chmod 700 spec/helpers/gitea/gitea
+      - eval $(ssh-agent)
+      - crystal spec
+  
