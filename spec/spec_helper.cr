@@ -42,7 +42,7 @@ class Fixture
   end
 
   def self.clean_all
-    FileUtils.rm_rf("#{__DIR__}/tmp")
+   FileUtils.rm_rf("#{__DIR__}/tmp")
   end
 
   def self.gitea_access_token
@@ -94,7 +94,7 @@ class Fixture
         yield repo, path
       end
     ensure
-      FileUtils.rm_rf(path)
+      #FileUtils.rm_rf(path)
     end
   end
 

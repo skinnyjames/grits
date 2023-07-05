@@ -59,6 +59,10 @@ module Grits
       true
     end
 
+    def has_conflicts? : Bool
+      !LibGit.index_has_conflicts(to_unsafe).zero?
+    end
+
     def clear : Nil
       Error.giterr LibGit.index_clear(to_unsafe), "Index could not be cleared"
     end

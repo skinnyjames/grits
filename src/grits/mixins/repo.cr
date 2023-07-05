@@ -68,6 +68,10 @@ module Grits
         Error.giterr LibGit.repository_detach_head(to_unsafe)
       end
 
+      def set_head(name : String)
+        Error.giterr LibGit.repository_set_head(self, name), "can't set HEAD"
+      end
+
       def worktree
         Error.giterr LibGit.worktree_open_from_repository(out worktree, to_unsafe), "Couldn't open worktree"
         Worktree.new(worktree, self)
@@ -169,8 +173,17 @@ module Grits
         Error.giterr LibGit.repository_fetchhead_foreach(to_unsafe, callback, payload), "Cannot iterate over fetchhead"
       end
 
-      def checkout_head(options : CheckoutOptions? = CheckoutOptions.default)
+      def create_branch(name : String, *, ref : String = "HEAD", force : Bool = false)
+        Branch.create(name, self, commit_ref: ref, force: force)
+      end
+
+      def checkout_head(options : CheckoutOptions = CheckoutOptions.default)
         Error.giterr LibGit.checkout_head(to_unsafe, options.to_unsafe_ptr), "Cannot checkout head"
+      end
+
+      def checkout_tree(object : Grits::Object, options : CheckoutOptions = CheckoutOptions.default)
+        num = LibGit.checkout_tree(self, object, options.to_unsafe_ptr)
+        Error.giterr num, "Cannot checkout tree"
       end
 
       def revparse_single(text : String)

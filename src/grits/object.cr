@@ -12,7 +12,7 @@ module Grits
     def initialize(@raw : LibGit::Object); end
 
     def id
-      Oid.new LibGit.object_id(to_unsafe)
+      Oid.new LibGit.object_id(to_unsafe).value
     end
 
     def tree?
