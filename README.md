@@ -1,6 +1,6 @@
 # grits [![status-badge](https://ci.skinnyjames.net/api/badges/skinnyjames/grits/status.svg)](https://ci.skinnyjames.net/skinnyjames/grits)
 
-Git library in progress for Crystal
+Git library in progress for Crystal | [Documentation](https://skinnyjames.codeberg.page/grits/)
 
 Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compatibility.
 

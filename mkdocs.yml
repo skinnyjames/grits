@@ -1,8 +1,8 @@
 site_name: Grits
 use_directory_urls: true
-repo_url: https://gitlab.com/skinnyjames/grits
-edit_uri: https://gitlab.com/skinnyjames/grits/-/blob/main/docs
-site_url: https://skinnyjames.gitlab.io/grits
+repo_url: https://codeberg.org/skinnyjames/grits
+edit_uri: https://codeberg.org/skinnyjames/grits/src/branch/main/docs
+site_url: https://skinnyjames.codeberg.page/grits/
 
 nav:
   - Library API: Grits/index.md
@@ -25,7 +25,7 @@ theme:
         icon: material/weather-night
         name: Switch to light theme
   icon:
-    repo: fontawesome/brands/gitlab
+    repo: fontawesome/brands/square-git
   features:
     - navigation.tabs
 

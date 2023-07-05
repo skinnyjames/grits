@@ -12,3 +12,4 @@ test.cr
 .vscode/
 test_bindings.cr
 .venv/
+public/
