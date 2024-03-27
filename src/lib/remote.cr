@@ -48,7 +48,7 @@ lib LibGit
     certificate_check : (GitCert*, LibC::Int, LibC::Char*, Void* -> LibC::Int) #done
     transfer_progress : (IndexerProgress*, Void* -> LibC::Int) #done
     update_tips : (LibC::Char*, Oid*, Oid*,  Void* -> LibC::Int) # done
-    pack_progress : (LibC::Int, Uint32T, Uint32T, Void* -> LibC::Int) #done
+    pack_progress : (LibC::Int, UInt32, UInt32, Void* -> LibC::Int) #done
     push_transfer_progress :  (LibC::UInt, LibC::UInt, LibC::SizeT, Void* -> LibC::Int) #done
     push_update_reference : (LibC::Char*, LibC::Char*, Void* -> LibC::Int) #done
     push_negotiation : (PushUpdate**, LibC::SizeT, Void* -> LibC::Int) #done (revisit with PushUpdate**)

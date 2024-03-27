@@ -36,8 +36,8 @@ lib LibGit
 
   struct RepositoryInitOptions
     version : LibC::UInt
-    flags : Uint32T
-    mode : Uint32T
+    flags : UInt32
+    mode : UInt32
     workdir_path : LibC::Char*
     description : LibC::Char*
     template_path : LibC::Char*

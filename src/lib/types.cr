@@ -5,7 +5,7 @@
 {% end %}
 lib LibGit
   # crystal aliases
-  alias Uint32T = LibC::UInt
+  alias UInt32 = LibC::UInt
   alias Uint16T = LibC::UShort
 
   # git aliases

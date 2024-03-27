@@ -118,7 +118,7 @@ module Grits
               0
             end
           when :pack_progress
-            @raw.pack_progress = ->(stage : LibC::Int, current : LibC::UInt32T, total : LibC::UInt32T, payload : Void*) do
+            @raw.pack_progress = ->(stage : LibC::Int, current : LibC::UInt, total : LibC::UInt, payload : Void*) do
               callback = Box(CallbacksState).unbox(payload).on_pack_progress
               callback.try do |cb|
                 cb.call(stage.to_i32, current.to_u32, total.to_u32)

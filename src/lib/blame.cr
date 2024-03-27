@@ -8,7 +8,7 @@ lib LibGit
 
   struct BlameOptions
     version : LibC::UInt
-    flags : Uint32T
+    flags : UInt32
     min_match_characters : Uint16T
     newest_commit : Oid
     oldest_commit : Oid
@@ -30,8 +30,8 @@ lib LibGit
     boundary : LibC::Char
   end
 
-  fun blame_get_hunk_count = git_blame_get_hunk_count(blame : Blame) : Uint32T
-  fun blame_get_hunk_byindex = git_blame_get_hunk_byindex(blame : Blame, index : Uint32T) : BlameHunk*
+  fun blame_get_hunk_count = git_blame_get_hunk_count(blame : Blame) : UInt32
+  fun blame_get_hunk_byindex = git_blame_get_hunk_byindex(blame : Blame, index : UInt32) : BlameHunk*
   fun blame_get_hunk_byline = git_blame_get_hunk_byline(blame : Blame, lineno : LibC::SizeT) : BlameHunk*
   fun blame_file = git_blame_file(out : Blame*, repo : Repository, path : LibC::Char*, options : BlameOptions*) : LibC::Int
   fun blame_buffer = git_blame_buffer(out : Blame*, reference : Blame, buffer : LibC::Char*, buffer_len : LibC::SizeT) : LibC::Int

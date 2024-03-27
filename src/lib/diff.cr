@@ -19,8 +19,8 @@ lib LibGit
     notify_cb : DiffNotifyCb
     progress_cb : DiffProgressCb
     payload : Void*
-    context_lines : Uint32T
-    interhunk_lines : Uint32T
+    context_lines : UInt32
+    interhunk_lines : UInt32
     id_abbrev : Uint16T
     max_size : OffT
     old_prefix : LibC::Char*
@@ -77,7 +77,7 @@ lib LibGit
 
   struct DiffDelta
     status : DeltaT
-    flags : Uint32T
+    flags : UInt32
     similarity : Uint16T
     nfiles : Uint16T
     old_file : DiffFile
@@ -88,7 +88,7 @@ lib LibGit
     id : Oid
     path : LibC::Char*
     size : OffT
-    flags : Uint32T
+    flags : UInt32
     mode : Uint16T
     id_abbrev : Uint16T
   end
@@ -141,7 +141,7 @@ lib LibGit
 
   struct DiffFindOptions
     version : LibC::UInt
-    flags : Uint32T
+    flags : UInt32
     rename_threshold : Uint16T
     rename_from_rewrite_threshold : Uint16T
     copy_threshold : Uint16T
