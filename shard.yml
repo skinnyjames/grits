@@ -7,7 +7,10 @@ authors:
 description: |
   Crystal bindings for libgit2
 
-crystal: 1.1.1
+crystal: 1.11.1
+
+scripts:
+  postinstall: xmake q git2
 
 license: MIT
 

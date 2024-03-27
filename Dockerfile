@@ -1,8 +1,12 @@
-FROM crystallang/crystal:1.8.1-alpine
+FROM crystallang/crystal:latest
 
-RUN apk add --no-cache wget build-base cmake python3 unzip openssh libssh2-dev
-RUN wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.zip -O libgit2.zip
 
-ENV CMAKE_LIBRARY_PATH="$CMAKE_LIBRARY_PATH:/usr/lib"
-ENV CMAKE_INCLUDE_PATH="$CMAKE_INCLUDE_PATH:/usr/include"
-RUN unzip libgit2.zip && cd libgit2-1.3.2 && mkdir build && cd build && cmake .. && cmake --build . --target install
+ENV XMAKE_ROOT=y
+RUN apt update -y && apt install -y software-properties-common
+RUN add-apt-repository ppa:xmake-io/xmake
+RUN apt update -y
+
+RUN apt install -y wget software-properties-common cmake python3 unzip openssh-client openssh-server libssh2-1 libssh2-1-dev xmake
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/* /usr/local/lib/.
+ENTRYPOINT ["/bin/bash", "--init-file", "~/.xmake/profile", "-lc"]

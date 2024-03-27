@@ -4,10 +4,12 @@ services:
 
 pipeline:
   test:
-    image: "skinnyjames/crystal-libgit2"
+    image: "skinnyjames/crystal-libgit2:xmake"
+    pull: true
     environment:
       - CI=true
     commands:
+      - xmake q -y git2
       - chmod 700 spec/helpers/gitea/gitea
       - eval $(ssh-agent)
       - crystal spec

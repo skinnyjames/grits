@@ -13,3 +13,7 @@ test.cr
 test_bindings.cr
 .venv/
 public/
+vendor/lib
+vendor/include
+build/
+.xmake/

@@ -1,7 +1,7 @@
-{% if flag?(:darwin) %}
-@[Link("git2.1.3")]
+{% if flag?(:windows) %}
+  @[Link(ldflags: "-L#{__DIR__}/../../vendor/lib -lgit2")]
 {% else %}
-@[Link(ldflags: "-l:libgit2.so.1.3")]
+  @[Link(ldflags: "-L#{__DIR__}/../../vendor/lib -Wl,-rpath,#{__DIR__}/../../vendor/lib -lgit2")]
 {% end %}
 lib LibGit
   REMOTE_CALLBACKS_VERSION = 1

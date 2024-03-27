@@ -2,8 +2,11 @@
 
 Git library in progress for Crystal | [Documentation](https://skinnyjames.codeberg.page/grits/)
 
-Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compatibility.
+## Requirements
 
+This library downloads and installs a specific version of libgit2 into `grits/vendor`.  The supported version is currently 1.3.0.
+
+In order to do this, you will need to have [xmake](https://xmake.io/#/) installed on your system.
 
 ## Installation
 
@@ -12,7 +15,7 @@ Note: these bindings are currently locked for `libgit2.so.1.3` to preserve compa
    ```yaml
    dependencies:
      grits:
-       gitlab: skinnyjames/grits
+       git: https://codeberg.org/skinnyjames/grits.git
    ```
 
 2. Run `shards install`
